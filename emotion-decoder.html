@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Emotion Decoder — TheStaffLounge26</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Base ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --sage:      #8FAF8C;
+      --sage-light:#b8d1b5;
+      --sage-dark: #6a8e67;
+      --cream:     #FAF3E0;
+      --cream-dark:#f0e6cc;
+      --terra:     #C4714F;
+      --terra-dark:#a85a3a;
+      --charcoal:  #3D3D3D;
+      --white:     #ffffff;
+      --correct:   #4caf50;
+      --wrong:     #e05252;
+      --gold:      #d4a843;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Nunito', sans-serif;
+      background: var(--cream);
+      color: var(--charcoal);
+      overflow-x: hidden;
+    }
+
+    /* ── Pixel-art decorative dots (subtle game feel) ─────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(circle, rgba(143,175,140,0.18) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Screen wrapper ───────────────────────────────────────────── */
+    .screen {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 16px 60px;
+      z-index: 1;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.45s ease, transform 0.45s ease;
+      transform: translateY(12px);
+      overflow-y: auto;
+    }
+    .screen.active {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateY(0);
+    }
+    .screen.exit {
+      opacity: 0;
+      transform: translateY(-12px);
+      pointer-events: none;
+    }
+
+    /* ── Watermark footer ─────────────────────────────────────────── */
+    .watermark {
+      position: fixed;
+      bottom: 10px;
+      left: 0; right: 0;
+      text-align: center;
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      color: rgba(61,61,61,0.35);
+      font-family: 'Nunito', sans-serif;
+      font-weight: 600;
+      z-index: 100;
+      user-select: none;
+    }
+
+    /* ── Card ─────────────────────────────────────────────────────── */
+    .card {
+      background: var(--white);
+      border-radius: 20px;
+      box-shadow: 0 6px 32px rgba(61,61,61,0.12);
+      padding: 36px 32px;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    /* ── Typography ───────────────────────────────────────────────── */
+    h1, h2, h3 {
+      font-family: 'Playfair Display', serif;
+      line-height: 1.2;
+    }
+
+    /* ══════════════════════════════════════════════════════════════ */
+    /*  HOME SCREEN                                                   */
+    /* ══════════════════════════════════════════════════════════════ */
+    #home-screen { background: var(--cream); }
+
+    .home-card {
+      background: var(--white);
+      border-radius: 24px;
+      box-shadow: 0 8px 40px rgba(61,61,61,0.13);
+      padding: 44px 36px 40px;
+      max-width: 560px;
+      width: 100%;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .home-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, var(--sage), var(--terra), var(--gold));
+    }
+
+    .pixel-icon {
+      font-size: 3.2rem;
+      margin-bottom: 8px;
+      display: block;
+      animation: bob 2.4s ease-in-out infinite;
+    }
+    @keyframes bob {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-6px); }
+    }
+
+    .home-card h1 {
+      font-size: 2.6rem;
+      color: var(--charcoal);
+      margin-bottom: 8px;
+    }
+    .home-card h1 span { color: var(--terra); }
+
+    .subtitle {
+      font-size: 1.05rem;
+      color: var(--sage-dark);
+      font-weight: 700;
+      margin-bottom: 20px;
+      letter-spacing: 0.01em;
+    }
+
+    .instructions {
+      background: var(--cream);
+      border-radius: 14px;
+      padding: 16px 20px;
+      font-size: 0.95rem;
+      line-height: 1.65;
+      color: var(--charcoal);
+      margin-bottom: 24px;
+      text-align: left;
+    }
+
+    .casel-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--sage);
+      color: var(--white);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 7px 16px;
+      border-radius: 999px;
+      margin-bottom: 28px;
+    }
+
+    /* ── Buttons ──────────────────────────────────────────────────── */
+    .btn {
+      display: inline-block;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 1rem;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 32px;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+      letter-spacing: 0.03em;
+    }
+    .btn:hover  { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+    .btn:active { transform: translateY(0);    box-shadow: none; }
+
+    .btn-primary {
+      background: var(--terra);
+      color: var(--white);
+      font-size: 1.1rem;
+      padding: 16px 40px;
+    }
+    .btn-primary:hover { background: var(--terra-dark); }
+
+    .btn-next {
+      background: var(--sage);
+      color: var(--white);
+      margin-top: 18px;
+    }
+    .btn-next:hover { background: var(--sage-dark); }
+
+    .btn-play-again {
+      background: var(--terra);
+      color: var(--white);
+      font-size: 1.05rem;
+      margin-top: 10px;
+      width: 100%;
+    }
+    .btn-play-again:hover { background: var(--terra-dark); }
+
+    /* ══════════════════════════════════════════════════════════════ */
+    /*  GAME SCREEN                                                   */
+    /* ══════════════════════════════════════════════════════════════ */
+    #game-screen { background: var(--cream); }
+
+    /* Progress bar */
+    .progress-wrap {
+      width: 100%;
+      max-width: 600px;
+      margin-bottom: 18px;
+    }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--sage-dark);
+      margin-bottom: 6px;
+    }
+    .progress-track {
+      background: var(--cream-dark);
+      border-radius: 999px;
+      height: 10px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--sage), var(--terra));
+      border-radius: 999px;
+      transition: width 0.5s ease;
+    }
+
+    /* Scenario card */
+    .scenario-card {
+      background: var(--white);
+      border-radius: 20px;
+      box-shadow: 0 6px 32px rgba(61,61,61,0.11);
+      padding: 30px 28px 28px;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    .scenario-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .scenario-num {
+      background: var(--terra);
+      color: var(--white);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 999px;
+    }
+    .scenario-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      color: var(--charcoal);
+    }
+
+    /* Twist badge */
+    .twist-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #7b5ea7, #c4714f);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 999px;
+      animation: glow 1.8s ease-in-out infinite;
+    }
+    @keyframes glow {
+      0%, 100% { box-shadow: 0 0 6px rgba(196,113,79,0.4); }
+      50%       { box-shadow: 0 0 18px rgba(196,113,79,0.7); }
+    }
+
+    .scenario-text {
+      font-size: 1rem;
+      line-height: 1.7;
+      color: var(--charcoal);
+      margin-bottom: 22px;
+      background: var(--cream);
+      border-radius: 12px;
+      padding: 14px 16px;
+      border-left: 4px solid var(--sage);
+    }
+
+    .question-label {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--sage-dark);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    /* Choice buttons */
+    .choices {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    @media (max-width: 420px) {
+      .choices { grid-template-columns: 1fr; }
+    }
+
+    .choice-btn {
+      background: var(--cream);
+      border: 2.5px solid transparent;
+      border-radius: 12px;
+      padding: 13px 14px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--charcoal);
+      cursor: pointer;
+      transition: border-color 0.18s, background 0.18s, transform 0.15s;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+    .choice-btn:hover:not(:disabled) {
+      border-color: var(--sage);
+      background: #edf5ec;
+      transform: translateY(-2px);
+    }
+    .choice-btn:disabled { cursor: default; }
+
+    .choice-emoji { font-size: 1.3rem; flex-shrink: 0; }
+
+    .choice-btn.correct {
+      background: #e6f4e6;
+      border-color: var(--correct);
+      animation: correctFlash 0.5s ease;
+    }
+    .choice-btn.wrong {
+      background: #fde8e8;
+      border-color: var(--wrong);
+      animation: wrongShake 0.45s ease;
+    }
+    @keyframes correctFlash {
+      0%   { background: #a8e6a8; }
+      100% { background: #e6f4e6; }
+    }
+    @keyframes wrongShake {
+      0%,100% { transform: translateX(0); }
+      20%     { transform: translateX(-6px); }
+      40%     { transform: translateX(6px); }
+      60%     { transform: translateX(-4px); }
+      80%     { transform: translateX(4px); }
+    }
+
+    /* ══════════════════════════════════════════════════════════════ */
+    /*  REVEAL SCREEN                                                 */
+    /* ══════════════════════════════════════════════════════════════ */
+    #reveal-screen { background: var(--cream); }
+
+    .reveal-card {
+      background: var(--white);
+      border-radius: 20px;
+      box-shadow: 0 6px 32px rgba(61,61,61,0.11);
+      padding: 32px 28px;
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .result-banner {
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-bottom: 20px;
+      font-size: 1.35rem;
+      font-family: 'Playfair Display', serif;
+    }
+    .result-banner.correct-banner {
+      background: #e6f4e6;
+      color: #2e7d32;
+      border: 2px solid var(--correct);
+    }
+    .result-banner.wrong-banner {
+      background: #fde8e8;
+      color: #c62828;
+      border: 2px solid var(--wrong);
+    }
+
+    .true-emotion-label {
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--sage-dark);
+      margin-bottom: 6px;
+    }
+    .true-emotion {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.9rem;
+      color: var(--terra);
+      margin-bottom: 18px;
+    }
+
+    .explanation {
+      font-size: 0.97rem;
+      line-height: 1.7;
+      color: var(--charcoal);
+      background: var(--cream);
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-bottom: 18px;
+      text-align: left;
+    }
+
+    .did-you-know {
+      background: linear-gradient(135deg, var(--sage), var(--sage-dark));
+      color: var(--white);
+      border-radius: 12px;
+      padding: 13px 18px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      line-height: 1.55;
+      margin-bottom: 18px;
+      text-align: left;
+    }
+    .did-you-know strong {
+      display: block;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+      opacity: 0.85;
+    }
+
+    /* Twist reveal special styling */
+    .twist-reveal {
+      background: linear-gradient(135deg, #2d1b4e, #3d2a1a);
+      color: white;
+      border-radius: 16px;
+      padding: 22px;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .twist-reveal::before {
+      content: '✨';
+      position: absolute;
+      font-size: 5rem;
+      opacity: 0.08;
+      top: -10px; right: -10px;
+    }
+    .twist-reveal .twist-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      margin-bottom: 8px;
+      color: #f8d89a;
+    }
+    .twist-reveal p {
+      font-size: 0.93rem;
+      line-height: 1.65;
+      opacity: 0.9;
+    }
+    .twist-stars {
+      font-size: 1.1rem;
+      letter-spacing: 3px;
+      margin-bottom: 10px;
+    }
+
+    /* ══════════════════════════════════════════════════════════════ */
+    /*  RESULTS SCREEN                                                */
+    /* ══════════════════════════════════════════════════════════════ */
+    #results-screen { background: var(--cream); }
+
+    .results-card {
+      background: var(--white);
+      border-radius: 24px;
+      box-shadow: 0 8px 40px rgba(61,61,61,0.13);
+      padding: 40px 32px 36px;
+      max-width: 580px;
+      width: 100%;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .results-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, var(--gold), var(--terra), var(--sage));
+    }
+
+    .score-circle {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--sage), var(--sage-dark));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      box-shadow: 0 4px 20px rgba(143,175,140,0.4);
+    }
+    .score-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.4rem;
+      color: white;
+      line-height: 1;
+    }
+    .score-denom {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.8);
+      font-weight: 700;
+    }
+
+    .results-card h2 {
+      font-size: 1.8rem;
+      color: var(--charcoal);
+      margin-bottom: 10px;
+    }
+
+    .score-message {
+      font-size: 1rem;
+      color: var(--sage-dark);
+      font-weight: 700;
+      margin-bottom: 22px;
+      line-height: 1.5;
+    }
+
+    .reflection-box {
+      background: var(--cream);
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin-bottom: 24px;
+      text-align: left;
+      border-left: 4px solid var(--terra);
+    }
+    .reflection-box .reflection-label {
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--terra);
+      margin-bottom: 8px;
+    }
+    .reflection-box p {
+      font-size: 0.97rem;
+      line-height: 1.65;
+      font-style: italic;
+      color: var(--charcoal);
+    }
+
+    .tpt-note {
+      font-size: 0.8rem;
+      color: rgba(61,61,61,0.5);
+      margin-top: 18px;
+      font-weight: 600;
+    }
+
+    /* ── Confetti burst (CSS only) ────────────────────────────────── */
+    .confetti-wrap {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 0;
+      pointer-events: none;
+      overflow: visible;
+    }
+    .confetti-wrap span {
+      position: absolute;
+      top: -8px;
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      animation: confettiFall 1.2s ease-in forwards;
+    }
+    @keyframes confettiFall {
+      0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(220px) rotate(540deg); opacity: 0; }
+    }
+
+    /* ── Responsive tweaks ────────────────────────────────────────── */
+    @media (max-width: 480px) {
+      .home-card, .scenario-card, .reveal-card, .results-card { padding: 24px 18px; }
+      .home-card h1 { font-size: 2rem; }
+      .true-emotion  { font-size: 1.5rem; }
+      .score-circle  { width: 90px; height: 90px; }
+      .score-num     { font-size: 1.9rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Watermark ──────────────────────────────────────────────── -->
+  <div class="watermark">✦ TheStaffLounge26 ✦</div>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!--  HOME SCREEN                                                 -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <div class="screen active" id="home-screen">
+    <div class="home-card">
+      <span class="pixel-icon">🧠</span>
+      <h1>Emotion <span>Decoder</span></h1>
+      <p class="subtitle">Can you figure out what they're REALLY feeling?</p>
+
+      <div class="instructions">
+        Read each scenario carefully — pay attention to the character's body language, behavior, and situation.
+        Then pick the emotion they're <strong>truly</strong> feeling underneath the surface.
+        Hint: people don't always show what they actually feel! 🎯
+      </div>
+
+      <div class="casel-badge">
+        <span>🌱</span> Self-Awareness + Social Awareness
+      </div>
+      <br />
+      <button class="btn btn-primary" onclick="startGame()">▶ Start Game</button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!--  GAME SCREEN                                                 -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <div class="screen" id="game-screen">
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span id="progress-text">Scenario 1 of 8</span>
+        <span id="score-live">Score: 0</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="scenario-card" id="scenario-card">
+      <!-- Injected by JS -->
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!--  REVEAL SCREEN                                               -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <div class="screen" id="reveal-screen">
+    <div class="reveal-card" id="reveal-card">
+      <!-- Injected by JS -->
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!--  RESULTS SCREEN                                              -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <div class="screen" id="results-screen">
+    <div class="results-card" id="results-card">
+      <!-- Injected by JS -->
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!--  JAVASCRIPT                                                  -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <script>
+    /* ── Data ────────────────────────────────────────────────────── */
+    const SCENARIOS = [
+      {
+        name: "Marcus",
+        num: 1,
+        isTwist: false,
+        text: "Marcus slams his locker and storms past his friends without saying a word. His jaw is clenched and he won't make eye contact. He just found out he didn't make the basketball team.",
+        choices: [
+          { emoji: "😠", label: "Angry",       id: "angry" },
+          { emoji: "😳", label: "Embarrassed", id: "embarrassed" },
+          { emoji: "😤", label: "Frustrated",  id: "frustrated" },
+          { emoji: "😞", label: "Disappointed",id: "disappointed" }
+        ],
+        correct: "embarrassed",
+        trueEmotion: "EMBARRASSED",
+        explanation: "Marcus's slamming and storming looks like anger — but he's avoiding eye contact and isolating, both signs of shame. Missing the team cut in front of friends is deeply embarrassing. The aggression is armor protecting a bruised ego, not pure anger.",
+        didYouKnow: "Anger is called a 'secondary emotion' because it often covers more vulnerable feelings like shame or fear — it's easier to feel mad than humiliated."
+      },
+      {
+        name: "Sofia",
+        num: 2,
+        isTwist: false,
+        text: "Sofia laughs loudly and makes jokes every time the teacher calls on her in class. She's always the class clown. But she hasn't turned in homework in three weeks.",
+        choices: [
+          { emoji: "😄", label: "Happy",        id: "happy" },
+          { emoji: "😵", label: "Overwhelmed",  id: "overwhelmed" },
+          { emoji: "💪", label: "Confident",    id: "confident" },
+          { emoji: "😴", label: "Bored",        id: "bored" }
+        ],
+        correct: "overwhelmed",
+        trueEmotion: "OVERWHELMED",
+        explanation: "Making jokes when called on is a classic deflection from not knowing the answer — and three weeks of missing homework signals something is piling up. Sofia uses humor as a shield so no one notices she's drowning. That's overwhelm, not happiness.",
+        didYouKnow: "Humor is a real coping mechanism — researchers call it 'adaptive humor,' but when it's constant, it's often a sign someone is masking serious stress."
+      },
+      {
+        name: "Jaylen",
+        num: 3,
+        isTwist: false,
+        text: "Jaylen sits completely still during the fire drill, staring straight ahead while everyone else is talking. He doesn't flinch at loud noises — but his knuckles are white from gripping the desk.",
+        choices: [
+          { emoji: "😌", label: "Calm",    id: "calm" },
+          { emoji: "😑", label: "Bored",   id: "bored" },
+          { emoji: "😰", label: "Anxious", id: "anxious" },
+          { emoji: "🎯", label: "Focused", id: "focused" }
+        ],
+        correct: "anxious",
+        trueEmotion: "ANXIOUS",
+        explanation: "Jaylen looks calm, but freezing — going very still and tuning out — is a real anxiety response. White-knuckled gripping is a physical sign of tension. His body is in 'freeze mode,' which is just as much a stress response as panic.",
+        didYouKnow: "The freeze response is part of the same fight-flight-freeze system — when something feels too big to fight or flee, the brain sometimes shuts us down instead."
+      },
+      {
+        name: "Priya",
+        num: 4,
+        isTwist: false,
+        text: "Priya keeps saying 'I don't care' and shrugs when her friend cancels their plans for the third time. She walks away quickly and doesn't look back.",
+        choices: [
+          { emoji: "😐", label: "Indifferent", id: "indifferent" },
+          { emoji: "💔", label: "Hurt",        id: "hurt" },
+          { emoji: "😒", label: "Annoyed",     id: "annoyed" },
+          { emoji: "😌", label: "Relieved",    id: "relieved" }
+        ],
+        correct: "hurt",
+        trueEmotion: "HURT",
+        explanation: "Saying 'I don't care' and walking away fast are textbook signs of emotional withdrawal — protecting yourself from pain by pretending you don't feel it. Three cancellations would hurt anyone. Priya cares deeply; she just doesn't feel safe showing it.",
+        didYouKnow: "Emotional suppression — acting like you don't care — actually makes feelings more intense over time, not less. The feelings go underground, not away."
+      },
+      {
+        name: "Devon",
+        num: 5,
+        isTwist: false,
+        text: "Devon brags loudly about his new shoes and interrupts other students to talk about his stuff. He makes fun of someone else's backpack in front of the group.",
+        choices: [
+          { emoji: "😎", label: "Confident", id: "confident" },
+          { emoji: "🤩", label: "Excited",   id: "excited" },
+          { emoji: "😟", label: "Insecure",  id: "insecure" },
+          { emoji: "🦁", label: "Proud",     id: "proud" }
+        ],
+        correct: "insecure",
+        trueEmotion: "INSECURE",
+        explanation: "Truly confident people rarely need to put others down to feel good. Loud bragging and mocking someone else's things is a way of managing deep insecurity by making comparisons — 'if I can make them look lesser, I feel bigger.' It's the opposite of real confidence.",
+        didYouKnow: "Psychologists call this 'downward social comparison' — putting others down to boost your own self-image. It's a sign of low self-worth, not high confidence."
+      },
+      {
+        name: "Aaliyah",
+        num: 6,
+        isTwist: false,
+        text: "Aaliyah cries during a group project when her idea gets changed without asking her. She says 'forget it, whatever you all want' and goes quiet for the rest of class.",
+        choices: [
+          { emoji: "😢", label: "Sad",          id: "sad" },
+          { emoji: "😡", label: "Angry",         id: "angry" },
+          { emoji: "😶", label: "Dismissed",     id: "dismissed" },
+          { emoji: "😰", label: "Anxious",       id: "anxious" }
+        ],
+        correct: "dismissed",
+        trueEmotion: "DISMISSED",
+        explanation: "Aaliyah isn't just sad about the project — she feels like her voice and ideas don't matter to the group. Being changed without consultation sends the message 'your input isn't important.' That feeling of being unheard and dismissed is deeper than sadness about a project decision.",
+        didYouKnow: "Feeling dismissed or unheard is one of the most commonly reported unmet emotional needs among middle schoolers — and it's strongly linked to disengagement in school."
+      },
+      {
+        name: "Tomás",
+        num: 7,
+        isTwist: false,
+        text: "Tomás refuses to go to the cafeteria and says he's not hungry. He's been sitting alone in the hallway for the second day in a row, watching students pass by.",
+        choices: [
+          { emoji: "🤷", label: "Not Hungry", id: "not-hungry" },
+          { emoji: "😔", label: "Lonely",     id: "lonely" },
+          { emoji: "🤒", label: "Unwell",     id: "unwell" },
+          { emoji: "😶", label: "Shy",        id: "shy" }
+        ],
+        correct: "lonely",
+        trueEmotion: "LONELY",
+        explanation: "Sitting outside the cafeteria and watching others pass is a painful image of someone who wants to belong but doesn't know how. 'I'm not hungry' is an easier thing to say than 'I have no one to sit with.' Avoidance of the situation doesn't mean indifference to it.",
+        didYouKnow: "Research shows that social isolation activates the same brain regions as physical pain — loneliness literally hurts the same way a broken arm does."
+      },
+      {
+        name: "Jordan",
+        num: 8,
+        isTwist: true,
+        text: "Jordan is new to school today. They smile at absolutely everyone, volunteer for every activity the teacher mentions, compliment people's clothes, and laugh at every joke. By the end of the day, three students think Jordan is the most confident, happy person they've ever met.",
+        choices: [
+          { emoji: "😊", label: "Happy",      id: "happy" },
+          { emoji: "🎉", label: "Excited",    id: "excited" },
+          { emoji: "😬", label: "Nervous",    id: "nervous" },
+          { emoji: "💪", label: "Confident",  id: "confident" }
+        ],
+        correct: "nervous",
+        trueEmotion: "NERVOUS / SCARED",
+        explanation: "Jordan's nonstop smiling, volunteering, and complimenting is a people-pleasing response — doing everything possible to make others like them so they feel safe. This is called 'fawning,' a real stress response where we work overtime to gain approval because we're scared of rejection.",
+        didYouKnow: "'Fawning' — extreme people-pleasing — is a recognized stress response alongside fight, flight, and freeze. It often develops when someone has learned that making others happy keeps them safe."
+      }
+    ];
+
+    /* ── State ───────────────────────────────────────────────────── */
+    let currentIdx  = 0;
+    let score       = 0;
+    let lastCorrect = false;
+
+    /* ── Screen transitions ───────────────────────────────────────── */
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => {
+        if (s.classList.contains('active')) {
+          s.classList.add('exit');
+          s.classList.remove('active');
+          setTimeout(() => s.classList.remove('exit'), 500);
+        }
+      });
+      const next = document.getElementById(id);
+      setTimeout(() => {
+        next.classList.add('active');
+        next.scrollTop = 0;
+      }, 250);
+    }
+
+    /* ── Start game ──────────────────────────────────────────────── */
+    function startGame() {
+      currentIdx = 0;
+      score      = 0;
+      renderScenario();
+      showScreen('game-screen');
+    }
+
+    /* ── Render scenario ─────────────────────────────────────────── */
+    function renderScenario() {
+      const s    = SCENARIOS[currentIdx];
+      const pct  = (currentIdx / 8) * 100;
+      document.getElementById('progress-fill').style.width = pct + '%';
+      document.getElementById('progress-text').textContent  = `Scenario ${currentIdx + 1} of 8`;
+      document.getElementById('score-live').textContent     = `Score: ${score}`;
+
+      const shuffled = shuffle([...s.choices]);
+
+      let headerExtra = '';
+      if (s.isTwist) {
+        headerExtra = `<span class="twist-badge">⚡ Plot Twist Finale</span>`;
+      }
+
+      const choicesHTML = shuffled.map(c => `
+        <button
+          class="choice-btn"
+          id="choice-${c.id}"
+          onclick="handleChoice('${c.id}', '${s.correct}')"
+        >
+          <span class="choice-emoji">${c.emoji}</span>
+          <span>${c.label}</span>
+        </button>
+      `).join('');
+
+      document.getElementById('scenario-card').innerHTML = `
+        <div class="scenario-header">
+          <span class="scenario-num">Scenario ${s.num}</span>
+          <span class="scenario-name">${s.name}</span>
+          ${headerExtra}
+        </div>
+        <div class="scenario-text">${s.text}</div>
+        <div class="question-label">🔍 What is ${s.name} REALLY feeling?</div>
+        <div class="choices">${choicesHTML}</div>
+      `;
+    }
+
+    /* ── Handle choice ───────────────────────────────────────────── */
+    function handleChoice(chosen, correct) {
+      // Disable all buttons
+      document.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
+
+      lastCorrect = (chosen === correct);
+      if (lastCorrect) score++;
+
+      // Highlight
+      const chosenBtn  = document.getElementById('choice-' + chosen);
+      const correctBtn = document.getElementById('choice-' + correct);
+      if (chosenBtn)  chosenBtn.classList.add(lastCorrect ? 'correct' : 'wrong');
+      if (!lastCorrect && correctBtn) {
+        setTimeout(() => correctBtn.classList.add('correct'), 400);
+      }
+
+      setTimeout(() => showReveal(), 900);
+    }
+
+    /* ── Show reveal ─────────────────────────────────────────────── */
+    function showReveal() {
+      const s = SCENARIOS[currentIdx];
+
+      const banner = lastCorrect
+        ? `<div class="result-banner correct-banner">✅ You got it right!</div>`
+        : `<div class="result-banner wrong-banner">Not quite — here's what's really going on.</div>`;
+
+      const nextLabel = (currentIdx < SCENARIOS.length - 1) ? 'Next Scenario →' : 'See My Results →';
+
+      let twistSection = '';
+      if (s.isTwist) {
+        twistSection = `
+          <div class="twist-reveal">
+            <div class="twist-stars">★ ★ ★</div>
+            <div class="twist-headline">🎭 The Plot Twist</div>
+            <p>Jordan seemed like the most confident person in the room — but underneath all that warmth and enthusiasm was someone desperately hoping to be accepted. Sometimes the biggest smiles carry the heaviest worries.</p>
+          </div>
+        `;
+      }
+
+      document.getElementById('reveal-card').innerHTML = `
+        ${banner}
+        <div class="true-emotion-label">The True Emotion</div>
+        <div class="true-emotion">${s.trueEmotion}</div>
+        ${twistSection}
+        <div class="explanation">${s.explanation}</div>
+        <div class="did-you-know">
+          <strong>💡 Did You Know?</strong>
+          ${s.didYouKnow}
+        </div>
+        <button class="btn btn-next" onclick="nextScenario()">${nextLabel}</button>
+      `;
+
+      showScreen('reveal-screen');
+    }
+
+    /* ── Next scenario / results ─────────────────────────────────── */
+    function nextScenario() {
+      currentIdx++;
+      if (currentIdx < SCENARIOS.length) {
+        renderScenario();
+        showScreen('game-screen');
+      } else {
+        showResults();
+      }
+    }
+
+    /* ── Show results ────────────────────────────────────────────── */
+    function showResults() {
+      let title, message, emoji;
+      if (score <= 3) {
+        emoji   = '🌱';
+        title   = 'Keep Practicing!';
+        message = 'Emotions can be tricky to spot — especially when people hide them. The more you practice, the better you\'ll get.';
+      } else if (score <= 6) {
+        emoji   = '🔍';
+        title   = 'Nice Work!';
+        message = 'You\'re building your emotion radar. You can already see past the surface on some tough ones!';
+      } else {
+        emoji   = '🏆';
+        title   = 'Emotion Expert!';
+        message = 'You can see past the surface like a pro. That\'s a superpower when it comes to understanding people.';
+      }
+
+      const confetti = score >= 7 ? generateConfetti() : '';
+
+      document.getElementById('results-card').innerHTML = `
+        ${confetti}
+        <div style="font-size:2.8rem; margin-bottom:6px">${emoji}</div>
+        <div class="score-circle">
+          <span class="score-num">${score}</span>
+          <span class="score-denom">out of 8</span>
+        </div>
+        <h2>${title}</h2>
+        <p class="score-message">${message}</p>
+        <div class="reflection-box">
+          <div class="reflection-label">🪞 Reflection Moment</div>
+          <p>Think of a time you felt one thing but showed something completely different on the outside. What was really going on for you?</p>
+        </div>
+        <button class="btn btn-play-again" onclick="startGame()">🔄 Play Again</button>
+        <p class="tpt-note">Free resource from TheStaffLounge26 — find more SEL activities on TPT 🌿</p>
+      `;
+
+      showScreen('results-screen');
+    }
+
+    /* ── Helpers ─────────────────────────────────────────────────── */
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function generateConfetti() {
+      const colors = ['#8FAF8C','#C4714F','#d4a843','#7b5ea7','#4caf50'];
+      let html = '<div class="confetti-wrap">';
+      for (let i = 0; i < 22; i++) {
+        const color = colors[i % colors.length];
+        const left  = (4 + i * 4.3).toFixed(1) + '%';
+        const delay = (i * 0.055).toFixed(2) + 's';
+        const rot   = Math.random() > 0.5 ? 'rotate(45deg)' : 'rotate(0deg)';
+        html += `<span style="background:${color};left:${left};animation-delay:${delay};transform:${rot}"></span>`;
+      }
+      html += '</div>';
+      return html;
+    }
+  </script>
+</body>
+</html>
