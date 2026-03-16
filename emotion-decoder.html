@@ -146,21 +146,39 @@
     }
     .float-bg span {
       position: absolute;
-      font-size: 2.2rem;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
       opacity: 0;
       animation: floatUp linear infinite;
       user-select: none;
+      background: var(--orb-color, var(--sage));
+      box-shadow:
+        0 0 14px var(--orb-glow, rgba(143,175,140,0.6)),
+        inset -2px -2px 6px rgba(0,0,0,0.25),
+        inset 1px 1px 4px rgba(255,255,255,0.2);
     }
-    .float-bg span:nth-child(1)  { left: 5%;  animation-duration: 9s;  animation-delay: 0s;    font-size: 1.8rem; }
-    .float-bg span:nth-child(2)  { left: 15%; animation-duration: 13s; animation-delay: 1.5s;  font-size: 2.4rem; }
-    .float-bg span:nth-child(3)  { left: 28%; animation-duration: 10s; animation-delay: 3s;    font-size: 1.6rem; }
-    .float-bg span:nth-child(4)  { left: 42%; animation-duration: 14s; animation-delay: 0.8s;  font-size: 2rem;   }
-    .float-bg span:nth-child(5)  { left: 57%; animation-duration: 11s; animation-delay: 4s;    font-size: 1.7rem; }
-    .float-bg span:nth-child(6)  { left: 70%; animation-duration: 8s;  animation-delay: 2.2s;  font-size: 2.2rem; }
-    .float-bg span:nth-child(7)  { left: 82%; animation-duration: 12s; animation-delay: 0.3s;  font-size: 1.9rem; }
-    .float-bg span:nth-child(8)  { left: 92%; animation-duration: 15s; animation-delay: 5s;    font-size: 2.5rem; }
-    .float-bg span:nth-child(9)  { left: 22%; animation-duration: 9.5s; animation-delay: 6s;   font-size: 1.5rem; }
-    .float-bg span:nth-child(10) { left: 63%; animation-duration: 11s; animation-delay: 2.7s;  font-size: 2rem;   }
+    .float-bg span::before {
+      content: '';
+      position: absolute;
+      top: 4px;
+      left: 5px;
+      width: 38%;
+      height: 28%;
+      background: rgba(255,255,255,0.5);
+      border-radius: 50%;
+      filter: blur(1.5px);
+    }
+    .float-bg span:nth-child(1)  { left: 5%;  animation-duration: 9s;   animation-delay: 0s;   width: 28px; height: 28px; }
+    .float-bg span:nth-child(2)  { left: 15%; animation-duration: 13s;  animation-delay: 1.5s; width: 38px; height: 38px; }
+    .float-bg span:nth-child(3)  { left: 28%; animation-duration: 10s;  animation-delay: 3s;   width: 24px; height: 24px; }
+    .float-bg span:nth-child(4)  { left: 42%; animation-duration: 14s;  animation-delay: 0.8s; width: 32px; height: 32px; }
+    .float-bg span:nth-child(5)  { left: 57%; animation-duration: 11s;  animation-delay: 4s;   width: 26px; height: 26px; }
+    .float-bg span:nth-child(6)  { left: 70%; animation-duration: 8s;   animation-delay: 2.2s; width: 34px; height: 34px; }
+    .float-bg span:nth-child(7)  { left: 82%; animation-duration: 12s;  animation-delay: 0.3s; width: 30px; height: 30px; }
+    .float-bg span:nth-child(8)  { left: 92%; animation-duration: 15s;  animation-delay: 5s;   width: 40px; height: 40px; }
+    .float-bg span:nth-child(9)  { left: 22%; animation-duration: 9.5s; animation-delay: 6s;   width: 22px; height: 22px; }
+    .float-bg span:nth-child(10) { left: 63%; animation-duration: 11s;  animation-delay: 2.7s; width: 32px; height: 32px; }
     @keyframes floatUp {
       0%   { transform: translateY(105vh) rotate(-10deg); opacity: 0; }
       8%   { opacity: 0.13; }
@@ -199,11 +217,71 @@
       100% { background-position: 200% 0%; }
     }
 
+    /* ── Home screen gem icon (replaces emoji) ───────────────────── */
     .pixel-icon {
-      font-size: 3.6rem;
       display: block;
-      margin-bottom: 10px;
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 10px;
       animation: bob 2.4s ease-in-out infinite;
+      position: relative;
+    }
+    .pixel-icon::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(145deg, #ce93d8 0%, #7b5ea7 50%, #311b92 100%);
+      clip-path: polygon(50% 0%, 85% 18%, 100% 55%, 70% 100%, 30% 100%, 0% 55%, 15% 18%);
+      filter: drop-shadow(0 0 10px rgba(123,94,167,0.9)) drop-shadow(0 0 22px rgba(123,94,167,0.45));
+    }
+    .pixel-icon::after {
+      content: '';
+      position: absolute;
+      top: 10px;
+      left: 18px;
+      width: 26px;
+      height: 15px;
+      background: rgba(255,255,255,0.38);
+      border-radius: 50%;
+      filter: blur(3px);
+    }
+
+    /* ── Result-screen gem icons ──────────────────────────────────── */
+    .result-gem {
+      width: 56px;
+      height: 56px;
+      margin: 0 auto 8px;
+      position: relative;
+      display: block;
+    }
+    .result-gem::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      clip-path: polygon(50% 0%, 85% 18%, 100% 55%, 70% 100%, 30% 100%, 0% 55%, 15% 18%);
+    }
+    .result-gem::after {
+      content: '';
+      position: absolute;
+      top: 8px;
+      left: 14px;
+      width: 22px;
+      height: 13px;
+      background: rgba(255,255,255,0.35);
+      border-radius: 50%;
+      filter: blur(2.5px);
+    }
+    .result-gem.gem-seed::before  {
+      background: linear-gradient(145deg, #a5d6a7, #8FAF8C, #388e3c);
+      filter: drop-shadow(0 0 10px rgba(143,175,140,0.8));
+    }
+    .result-gem.gem-lens::before  {
+      background: linear-gradient(145deg, #ffb74d, #C4714F, #bf360c);
+      filter: drop-shadow(0 0 10px rgba(196,113,79,0.8));
+    }
+    .result-gem.gem-crown::before {
+      background: linear-gradient(145deg, #fff176, #d4a843, #e65100);
+      filter: drop-shadow(0 0 12px rgba(212,168,67,0.9));
     }
     @keyframes bob {
       0%, 100% { transform: translateY(0) rotate(-3deg); }
@@ -515,7 +593,41 @@
       box-shadow: 0 6px 18px rgba(143,175,140,0.3);
     }
     .choice-btn:disabled { cursor: default; }
-    .choice-emoji { font-size: 1.35rem; flex-shrink: 0; }
+
+    /* ── Emotion Orbs ─────────────────────────────────────────────── */
+    .choice-orb {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: var(--orb-color, var(--sage));
+      box-shadow:
+        0 0 12px var(--orb-glow, rgba(143,175,140,0.6)),
+        inset -3px -3px 8px rgba(0,0,0,0.28),
+        inset 2px 2px 6px rgba(255,255,255,0.22);
+      position: relative;
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+    .choice-orb::before {
+      content: '';
+      position: absolute;
+      top: 5px;
+      left: 7px;
+      width: 38%;
+      height: 28%;
+      background: rgba(255,255,255,0.62);
+      border-radius: 50%;
+      filter: blur(1.5px);
+      pointer-events: none;
+    }
+    .choice-btn:hover:not(:disabled) .choice-orb {
+      box-shadow:
+        0 0 20px var(--orb-glow, rgba(143,175,140,0.8)),
+        0 0 6px var(--orb-glow, rgba(143,175,140,0.5)),
+        inset -3px -3px 8px rgba(0,0,0,0.28),
+        inset 2px 2px 6px rgba(255,255,255,0.22);
+      transform: scale(1.12);
+    }
 
     .choice-btn.correct {
       background: #e6f4e6;
@@ -540,12 +652,12 @@
       80%     { transform: translateX(4px); }
     }
 
-    /* Particle burst */
+    /* Particle burst — CSS orbs */
     .particle {
       position: fixed;
       pointer-events: none;
-      font-size: 1.6rem;
       z-index: 400;
+      border-radius: 50%;
       animation: particleBurst 0.9s ease-out forwards;
     }
     @keyframes particleBurst {
@@ -665,11 +777,12 @@
       to   { opacity: 1; transform: scale(1)   rotate(0); }
     }
     .twist-reveal::before {
-      content: '✨';
+      content: '◈';
       position: absolute;
       font-size: 6rem;
-      opacity: 0.07;
+      opacity: 0.09;
       top: -12px; right: -8px;
+      color: #ce93d8;
     }
     .twist-headline {
       font-family: 'Playfair Display', serif;
@@ -808,24 +921,31 @@
   <div class="screen active" id="home-screen">
     <!-- Floating background -->
     <div class="float-bg" aria-hidden="true">
-      <span>😊</span><span>💔</span><span>😤</span><span>😰</span>
-      <span>😳</span><span>🧠</span><span>💪</span><span>😔</span>
-      <span>😶</span><span>🔍</span>
+      <span style="--orb-color:#66bb6a;--orb-glow:rgba(102,187,106,0.6)"></span>
+      <span style="--orb-color:#e53935;--orb-glow:rgba(229,57,53,0.6)"></span>
+      <span style="--orb-color:#ff7043;--orb-glow:rgba(255,112,67,0.6)"></span>
+      <span style="--orb-color:#ab47bc;--orb-glow:rgba(171,71,188,0.6)"></span>
+      <span style="--orb-color:#ec407a;--orb-glow:rgba(236,64,122,0.6)"></span>
+      <span style="--orb-color:#7b5ea7;--orb-glow:rgba(123,94,167,0.6)"></span>
+      <span style="--orb-color:#29b6f6;--orb-glow:rgba(41,182,246,0.6)"></span>
+      <span style="--orb-color:#5c6bc0;--orb-glow:rgba(92,107,192,0.6)"></span>
+      <span style="--orb-color:#90a4ae;--orb-glow:rgba(144,164,174,0.5)"></span>
+      <span style="--orb-color:#d4a843;--orb-glow:rgba(212,168,67,0.6)"></span>
     </div>
 
     <div class="home-card">
-      <span class="pixel-icon">🧠</span>
+      <span class="pixel-icon"></span>
       <h1 id="home-title" aria-label="Emotion Decoder"></h1>
       <p class="subtitle">Can you figure out what they're REALLY feeling?</p>
 
       <div class="instructions">
         Read each scenario carefully — pay attention to the character's body language, behavior, and situation.
         Then pick the emotion they're <strong>truly</strong> feeling underneath the surface.
-        Hint: people don't always show what they actually feel! 🎯
+        Hint: people don't always show what they actually feel! ◈
       </div>
 
       <div class="casel-badge">
-        <span>🌱</span> Self-Awareness + Social Awareness
+        <span>✦</span> Self-Awareness + Social Awareness
       </div>
       <br />
       <button class="btn btn-primary" onclick="startGame()">▶ &nbsp;Start Game</button>
@@ -989,6 +1109,37 @@
     ];
 
     /* ─────────────────────────────────────────────────────────────
+       EMOTION ORB COLORS — keyed by choice id
+    ───────────────────────────────────────────────────────────── */
+    const EMOTION_ORBS = {
+      'angry':        { color: '#e53935', glow: 'rgba(229,57,53,0.6)'    },
+      'embarrassed':  { color: '#ec407a', glow: 'rgba(236,64,122,0.6)'   },
+      'frustrated':   { color: '#f4511e', glow: 'rgba(244,81,30,0.6)'    },
+      'disappointed': { color: '#5c6bc0', glow: 'rgba(92,107,192,0.6)'   },
+      'happy':        { color: '#fdd835', glow: 'rgba(253,216,53,0.6)'   },
+      'overwhelmed':  { color: '#ff7043', glow: 'rgba(255,112,67,0.6)'   },
+      'confident':    { color: '#29b6f6', glow: 'rgba(41,182,246,0.6)'   },
+      'bored':        { color: '#78909c', glow: 'rgba(120,144,156,0.5)'  },
+      'calm':         { color: '#66bb6a', glow: 'rgba(102,187,106,0.6)'  },
+      'anxious':      { color: '#ab47bc', glow: 'rgba(171,71,188,0.6)'   },
+      'focused':      { color: '#26c6da', glow: 'rgba(38,198,218,0.6)'   },
+      'hurt':         { color: '#c62828', glow: 'rgba(198,40,40,0.6)'    },
+      'indifferent':  { color: '#9e9e9e', glow: 'rgba(158,158,158,0.45)' },
+      'annoyed':      { color: '#ff5722', glow: 'rgba(255,87,34,0.6)'    },
+      'relieved':     { color: '#80cbc4', glow: 'rgba(128,203,196,0.6)'  },
+      'insecure':     { color: '#7e57c2', glow: 'rgba(126,87,194,0.6)'   },
+      'excited':      { color: '#ffca28', glow: 'rgba(255,202,40,0.6)'   },
+      'proud':        { color: '#1e88e5', glow: 'rgba(30,136,229,0.6)'   },
+      'nervous':      { color: '#26a69a', glow: 'rgba(38,166,154,0.6)'   },
+      'not-hungry':   { color: '#8d6e63', glow: 'rgba(141,110,99,0.45)'  },
+      'lonely':       { color: '#3949ab', glow: 'rgba(57,73,171,0.6)'    },
+      'shy':          { color: '#ce93d8', glow: 'rgba(206,147,216,0.6)'  },
+      'unwell':       { color: '#aed581', glow: 'rgba(174,213,129,0.5)'  },
+      'sad':          { color: '#1e88e5', glow: 'rgba(30,136,229,0.6)'   },
+      'dismissed':    { color: '#90a4ae', glow: 'rgba(144,164,174,0.45)' },
+    };
+
+    /* ─────────────────────────────────────────────────────────────
        STATE
     ───────────────────────────────────────────────────────────── */
     let currentIdx  = 0;
@@ -1114,7 +1265,14 @@
     /* ─────────────────────────────────────────────────────────────
        PARTICLE BURST from a button element
     ───────────────────────────────────────────────────────────── */
-    const BURST_EMOJIS = ['✨','⭐','💛','🎉','💚','🌟'];
+    const BURST_COLORS = [
+      { color: '#fdd835', glow: 'rgba(253,216,53,0.85)'  },
+      { color: '#66bb6a', glow: 'rgba(102,187,106,0.85)' },
+      { color: '#29b6f6', glow: 'rgba(41,182,246,0.85)'  },
+      { color: '#ec407a', glow: 'rgba(236,64,122,0.85)'  },
+      { color: '#ab47bc', glow: 'rgba(171,71,188,0.85)'  },
+      { color: '#ff7043', glow: 'rgba(255,112,67,0.85)'  },
+    ];
     function burstParticles(btn) {
       const rect = btn.getBoundingClientRect();
       const cx = rect.left + rect.width  / 2;
@@ -1122,12 +1280,13 @@
       for (let i = 0; i < 8; i++) {
         const el = document.createElement('div');
         el.className = 'particle';
-        el.textContent = BURST_EMOJIS[i % BURST_EMOJIS.length];
+        const c    = BURST_COLORS[i % BURST_COLORS.length];
         const angle = (i / 8) * 360;
         const dist  = 60 + Math.random() * 60;
-        const tx = Math.cos(angle * Math.PI/180) * dist;
-        const ty = Math.sin(angle * Math.PI/180) * dist - 20;
-        el.style.cssText = `left:${cx}px;top:${cy}px;--tx:${tx}px;--ty:${ty}px;animation-duration:${0.75+Math.random()*0.3}s;`;
+        const tx = Math.cos(angle * Math.PI / 180) * dist;
+        const ty = Math.sin(angle * Math.PI / 180) * dist - 20;
+        const size = 10 + Math.random() * 7;
+        el.style.cssText = `left:${cx}px;top:${cy}px;--tx:${tx}px;--ty:${ty}px;animation-duration:${0.75+Math.random()*0.3}s;background:${c.color};box-shadow:0 0 8px ${c.glow};width:${size}px;height:${size}px;margin-left:-${size/2}px;margin-top:-${size/2}px;`;
         document.body.appendChild(el);
         setTimeout(() => el.remove(), 1100);
       }
@@ -1178,7 +1337,7 @@
       document.getElementById('score-live').textContent    = `Score: ${score}`;
 
       if (streak >= 2) {
-        streak_badge.textContent = `🔥 ×${streak}`;
+        streak_badge.textContent = `⚡ ×${streak}`;
         streak_badge.classList.add('visible');
       } else {
         streak_badge.classList.remove('visible');
@@ -1188,11 +1347,14 @@
       let headerExtra = s.isTwist
         ? `<span class="twist-badge">⚡ Plot Twist Finale</span>` : '';
 
-      const choicesHTML = shuffled.map(c => `
+      const choicesHTML = shuffled.map(c => {
+        const orb = EMOTION_ORBS[c.id] || { color: '#8FAF8C', glow: 'rgba(143,175,140,0.6)' };
+        return `
         <button class="choice-btn" id="choice-${c.id}" onclick="handleChoice('${c.id}','${s.correct}')">
-          <span class="choice-emoji">${c.emoji}</span>
+          <span class="choice-orb" style="--orb-color:${orb.color};--orb-glow:${orb.glow}"></span>
           <span>${c.label}</span>
-        </button>`).join('');
+        </button>`;
+      }).join('');
 
       document.getElementById('scenario-card').innerHTML = `
         <div class="scenario-header">
@@ -1201,7 +1363,7 @@
           ${headerExtra}
         </div>
         <div class="scenario-text" id="scenario-text"></div>
-        <div class="question-label" id="question-label">🔍 What is ${s.name} REALLY feeling?</div>
+        <div class="question-label" id="question-label">◉ What is ${s.name} REALLY feeling?</div>
         <div class="choices" id="choices-grid">${choicesHTML}</div>
       `;
 
@@ -1237,10 +1399,10 @@
         if (streak >= 2) {
           setTimeout(() => {
             playSound('streak');
-            showToast(`🔥 ${streak} in a row! You're on fire!`);
+            showToast(`⚡ ${streak} in a row! You're on fire!`);
           }, 350);
         } else {
-          showToast('✅ Nice read!');
+          showToast('◆ Nice read!');
         }
       } else {
         streak = 0;
@@ -1267,15 +1429,15 @@
       const nextLabel = currentIdx < SCENARIOS.length - 1 ? 'Next Scenario →' : 'See My Results →';
 
       const banner = lastCorrect
-        ? `<div class="result-banner correct-banner">✅ &nbsp;You cracked it!</div>`
-        : `<div class="result-banner wrong-banner">🤔 &nbsp;Not quite — here's what's really going on.</div>`;
+        ? `<div class="result-banner correct-banner">◆ &nbsp;You cracked it!</div>`
+        : `<div class="result-banner wrong-banner">◈ &nbsp;Not quite — here's what's really going on.</div>`;
 
       let twistSection = '';
       if (s.isTwist) {
         twistSection = `
           <div class="twist-reveal">
             <div class="twist-stars">★ ★ ★</div>
-            <div class="twist-headline">🎭 The Plot Twist</div>
+            <div class="twist-headline">⚡ The Plot Twist</div>
             <p>Jordan seemed like the most confident person in the room — but underneath all that warmth and enthusiasm was someone desperately hoping to be accepted. Sometimes the biggest smiles carry the heaviest worries.</p>
           </div>`;
       }
@@ -1286,7 +1448,7 @@
         <div class="true-emotion">${s.trueEmotion}</div>
         ${twistSection}
         <div class="explanation">${s.explanation}</div>
-        <div class="did-you-know"><strong>💡 Did You Know?</strong>${s.didYouKnow}</div>
+        <div class="did-you-know"><strong>◈ Did You Know?</strong>${s.didYouKnow}</div>
         <button class="btn btn-next" onclick="nextScenario()">${nextLabel}</button>
       `;
 
@@ -1314,20 +1476,20 @@
        RESULTS SCREEN
     ───────────────────────────────────────────────────────────── */
     function showResults() {
-      let title, message, topEmoji;
+      let title, message, topGemClass;
       if (score <= 3) {
-        topEmoji = '🌱'; title = 'Keep Practicing!';
+        topGemClass = 'gem-seed'; title = 'Keep Practicing!';
         message  = 'Emotions can be tricky to spot — especially when people hide them. The more you practice, the better you\'ll get.';
       } else if (score <= 6) {
-        topEmoji = '🔍'; title = 'Nice Work!';
+        topGemClass = 'gem-lens'; title = 'Nice Work!';
         message  = 'You\'re building your emotion radar. You can already see past the surface on some tough ones!';
       } else {
-        topEmoji = '🏆'; title = 'Emotion Expert!';
+        topGemClass = 'gem-crown'; title = 'Emotion Expert!';
         message  = 'You can see past the surface like a pro. That\'s a superpower when it comes to understanding people.';
       }
 
       document.getElementById('results-card').innerHTML = `
-        <div style="font-size:3rem;margin-bottom:8px">${topEmoji}</div>
+        <div class="result-gem ${topGemClass}"></div>
         <div class="score-circle">
           <span class="score-num" id="score-count">0</span>
           <span class="score-denom">out of 8</span>
@@ -1335,11 +1497,11 @@
         <h2>${title}</h2>
         <p class="score-message">${message}</p>
         <div class="reflection-box">
-          <div class="reflection-label">🪞 Reflection Moment</div>
+          <div class="reflection-label">◈ Reflection Moment</div>
           <p>Think of a time you felt one thing but showed something completely different on the outside. What was really going on for you?</p>
         </div>
-        <button class="btn btn-play-again" onclick="startGame()">🔄 &nbsp;Play Again</button>
-        <p class="tpt-note">Free resource from TheStaffLounge26 — find more SEL activities on TPT 🌿</p>
+        <button class="btn btn-play-again" onclick="startGame()">↺ &nbsp;Play Again</button>
+        <p class="tpt-note">Free resource from TheStaffLounge26 — find more SEL activities on TPT ✦</p>
       `;
 
       showScreen('results-screen');
