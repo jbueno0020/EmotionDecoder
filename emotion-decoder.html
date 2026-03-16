@@ -1321,8 +1321,8 @@
         choices: [
           { emoji:"😠", label:"Angry",        id:"angry"       },
           { emoji:"😳", label:"Embarrassed",  id:"embarrassed" },
-          { emoji:"😤", label:"Frustrated",   id:"frustrated"  },
-          { emoji:"😞", label:"Disappointed", id:"disappointed"}
+          { emoji:"🤩", label:"Excited",      id:"excited"     },
+          { emoji:"😎", label:"Proud",        id:"proud"       }
         ],
         correct: "embarrassed",
         trueEmotion: "EMBARRASSED",
@@ -1335,8 +1335,8 @@
         choices: [
           { emoji:"😄", label:"Happy",       id:"happy"       },
           { emoji:"😵", label:"Overwhelmed", id:"overwhelmed" },
-          { emoji:"💪", label:"Confident",   id:"confident"   },
-          { emoji:"😴", label:"Bored",       id:"bored"       }
+          { emoji:"😴", label:"Bored",       id:"bored"       },
+          { emoji:"🏆", label:"Proud",       id:"proud"       }
         ],
         correct: "overwhelmed",
         trueEmotion: "OVERWHELMED",
@@ -1345,12 +1345,12 @@
       },
       {
         name: "Jaylen", num: 3, isTwist: false,
-        text: "Jaylen sits completely still during the fire drill, staring straight ahead while everyone else is talking. He doesn't flinch at loud noises — but his knuckles are white from gripping the desk.",
+        text: "Jaylen sits completely still during the fire drill, staring straight ahead while everyone else is talking. He doesn't flinch at loud noises, but his knuckles are white from gripping the desk.",
         choices: [
           { emoji:"😌", label:"Calm",    id:"calm"    },
-          { emoji:"😑", label:"Bored",   id:"bored"   },
           { emoji:"😰", label:"Anxious", id:"anxious" },
-          { emoji:"🎯", label:"Focused", id:"focused" }
+          { emoji:"🤩", label:"Excited", id:"excited" },
+          { emoji:"😄", label:"Happy",   id:"happy"   }
         ],
         correct: "anxious",
         trueEmotion: "ANXIOUS",
@@ -1363,7 +1363,7 @@
         choices: [
           { emoji:"😐", label:"Indifferent", id:"indifferent" },
           { emoji:"💔", label:"Hurt",        id:"hurt"        },
-          { emoji:"😒", label:"Annoyed",     id:"annoyed"     },
+          { emoji:"😄", label:"Happy",       id:"happy"       },
           { emoji:"😌", label:"Relieved",    id:"relieved"    }
         ],
         correct: "hurt",
@@ -1376,9 +1376,9 @@
         text: "Devon brags loudly about his new shoes and interrupts other students to talk about his stuff. He makes fun of someone else's backpack in front of the group.",
         choices: [
           { emoji:"😎", label:"Confident", id:"confident" },
-          { emoji:"🤩", label:"Excited",   id:"excited"   },
           { emoji:"😟", label:"Insecure",  id:"insecure"  },
-          { emoji:"🦁", label:"Proud",     id:"proud"     }
+          { emoji:"😴", label:"Bored",     id:"bored"     },
+          { emoji:"😔", label:"Lonely",    id:"lonely"    }
         ],
         correct: "insecure",
         trueEmotion: "INSECURE",
@@ -1392,7 +1392,7 @@
           { emoji:"😢", label:"Sad",       id:"sad"       },
           { emoji:"😡", label:"Angry",     id:"angry"     },
           { emoji:"😶", label:"Dismissed", id:"dismissed" },
-          { emoji:"😰", label:"Anxious",   id:"anxious"   }
+          { emoji:"🤩", label:"Excited",   id:"excited"   }
         ],
         correct: "dismissed",
         trueEmotion: "DISMISSED",
@@ -1405,7 +1405,7 @@
         choices: [
           { emoji:"🤷", label:"Not Hungry", id:"not-hungry" },
           { emoji:"😔", label:"Lonely",     id:"lonely"     },
-          { emoji:"🤒", label:"Unwell",     id:"unwell"     },
+          { emoji:"😄", label:"Happy",      id:"happy"      },
           { emoji:"😶", label:"Shy",        id:"shy"        }
         ],
         correct: "lonely",
@@ -1417,10 +1417,10 @@
         name: "Jordan", num: 8, isTwist: true,
         text: "Jordan is new to school today. They smile at absolutely everyone, volunteer for every activity the teacher mentions, compliment people's clothes, and laugh at every joke. By the end of the day, three students think Jordan is the most confident, happy person they've ever met.",
         choices: [
-          { emoji:"😊", label:"Happy",     id:"happy"     },
-          { emoji:"🎉", label:"Excited",   id:"excited"   },
+          { emoji:"💪", label:"Confident", id:"confident" },
           { emoji:"😬", label:"Nervous",   id:"nervous"   },
-          { emoji:"💪", label:"Confident", id:"confident" }
+          { emoji:"😢", label:"Sad",       id:"sad"       },
+          { emoji:"😡", label:"Angry",     id:"angry"     }
         ],
         correct: "nervous",
         trueEmotion: "NERVOUS / SCARED",
@@ -1438,7 +1438,7 @@
     const WORLD2_SCENARIOS = [
       {
         name: "Keisha", num: 1, world: 2, isCombo: true,
-        text: "Keisha just won the spelling bee in front of the whole school. She holds her trophy and waves — but as soon as she steps offstage she immediately texts her mom asking if she did okay. She keeps replaying the moment she almost misspelled the last word.",
+        text: "Keisha just won the spelling bee in front of the whole school. She holds her trophy and waves, but as soon as she steps offstage she immediately texts her mom asking if she did okay. She keeps replaying the moment she almost misspelled the last word.",
         comboChoices: [
           { emoji:"🏆", label:"Proud",    id:"proud"   },
           { emoji:"😬", label:"Anxious",  id:"anxious" },
@@ -1454,7 +1454,7 @@
       },
       {
         name: "Darius", num: 2, world: 2, isCombo: true,
-        text: "Darius's parents tell him they're moving across the country over winter break. His room is full of posters from his old neighborhood. He starts packing his things the same day — but he spends twenty minutes staring at a photo of his friends before putting it in the box.",
+        text: "Darius's parents tell him they're moving across the country over winter break. His room is full of posters from his old neighborhood. He starts packing his things the same day, but he spends twenty minutes staring at a photo of his friends before putting it in the box.",
         comboChoices: [
           { emoji:"😢", label:"Sad",      id:"sad"     },
           { emoji:"😤", label:"Angry",    id:"angry"   },
@@ -1486,7 +1486,7 @@
       },
       {
         name: "Eli", num: 4, world: 2, isCombo: true,
-        text: "Eli's coach pulls him out of the starting lineup and gives his spot to a newer player. Eli cheers loudly from the bench for every good play his team makes — but after the game, when someone says 'great sportsmanship,' he goes home and cries alone in his room.",
+        text: "Eli's coach pulls him out of the starting lineup and gives his spot to a newer player. Eli cheers loudly from the bench for every good play his team makes, but after the game, when someone says 'great sportsmanship,' he goes home and cries alone in his room.",
         comboChoices: [
           { emoji:"🏅", label:"Proud",     id:"proud"    },
           { emoji:"😊", label:"Happy",     id:"happy"    },
@@ -1534,7 +1534,7 @@
       },
       {
         name: "Zara", num: 7, world: 2, isCombo: true,
-        text: "Zara's grandmother passes away. At the funeral, Zara is the one comforting everyone else — handing out tissues, making sure people have water, whispering 'it's okay' to her crying cousins. That night her dad finds her asleep at her desk with a drawing of her grandmother in her hand.",
+        text: "Zara's grandmother passes away. At the funeral, Zara is the one comforting everyone else: handing out tissues, making sure people have water, whispering 'it's okay' to her crying cousins. That night her dad finds her asleep at her desk with a drawing of her grandmother in her hand.",
         comboChoices: [
           { emoji:"😢", label:"Sad",         id:"sad"     },
           { emoji:"💪", label:"Strong",       id:"strong"  },
@@ -1572,7 +1572,7 @@
     const WORLD3_SCENARIOS = [
       {
         name: "Ms. Rivera", num: 1, world: 3, isTwist: false,
-        text: "Ms. Rivera is the strictest teacher in school — no late work, no exceptions, no small talk. She corrects every grammar mistake, assigns the most homework, and has never been seen smiling in class. Three of her former students come back every year just to visit her.",
+        text: "Ms. Rivera is the strictest teacher in school: no late work, no exceptions, no small talk. She corrects every grammar mistake, assigns the most homework, and has never been seen smiling in class. Three of her former students come back every year just to visit her.",
         choices: [
           { emoji:"😠", label:"Mean",      id:"mean"      },
           { emoji:"😤", label:"Rigid",     id:"rigid"     },
@@ -1586,7 +1586,7 @@
       },
       {
         name: "Brandon", num: 2, world: 3, isTwist: false,
-        text: "Brandon is the most popular kid in school — voted class president, always surrounded by people, first invited to every party. He has the most followers on social media. But he messages the school counselor at 11pm on a Tuesday and says: 'Can I come in tomorrow? I think something's wrong with me.'",
+        text: "Brandon is the most popular kid in school. Voted class president, always surrounded by people, first invited to every party. He has the most followers on social media. But he messages the school counselor at 11pm on a Tuesday and says: 'Can I come in tomorrow? I think something's wrong with me.'",
         choices: [
           { emoji:"😊", label:"Happy",   id:"happy"   },
           { emoji:"😟", label:"Lonely",  id:"lonely"  },
@@ -1600,7 +1600,7 @@
       },
       {
         name: "Mrs. Okafor", num: 3, world: 3, isTwist: false,
-        text: "Mrs. Okafor laughs at herself constantly — tells the class when she makes mistakes on the board, jokes about forgetting names, and always admits when she doesn't know something. Some students think she doesn't care. She gets the highest ratings of any teacher at the school year after year.",
+        text: "Mrs. Okafor laughs at herself constantly. She tells the class when she makes mistakes on the board, jokes about forgetting names, and always admits when she doesn't know something. Some students think she doesn't care. She gets the highest ratings of any teacher at the school year after year.",
         choices: [
           { emoji:"😄", label:"Carefree",    id:"carefree"   },
           { emoji:"💪", label:"Secure",       id:"secure"     },
