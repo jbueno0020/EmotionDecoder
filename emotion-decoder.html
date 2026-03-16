@@ -903,6 +903,300 @@
       .true-emotion  { font-size: 0.65rem; }
       .score-num     { font-size: 1.4rem; }
     }
+
+    /* ══════════════════════════════════════════════════════════════ */
+    /*  WORLD SELECT SCREEN                                           */
+    /* ══════════════════════════════════════════════════════════════ */
+    #world-select-screen { background: var(--navy); overflow: hidden; }
+
+    .world-select-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: clamp(0.6rem, 3vw, 0.82rem);
+      color: var(--yellow);
+      text-shadow: 2px 2px 0 var(--pink);
+      margin-bottom: 6px;
+      letter-spacing: 0.06em;
+      text-align: center;
+      position: relative; z-index: 1;
+    }
+    .world-select-sub {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: rgba(255,255,254,0.5);
+      margin-bottom: 24px;
+      text-align: center;
+      position: relative; z-index: 1;
+    }
+
+    .world-map {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      width: 100%;
+      max-width: 420px;
+      position: relative; z-index: 1;
+    }
+    .world-connector {
+      width: 4px; height: 28px;
+      background: repeating-linear-gradient(
+        180deg, rgba(124,58,237,0.5) 0px, rgba(124,58,237,0.5) 5px,
+        transparent 5px, transparent 10px
+      );
+      margin: 0 auto;
+    }
+    .world-connector.unlocked {
+      background: repeating-linear-gradient(
+        180deg, var(--cyan) 0px, var(--cyan) 5px,
+        transparent 5px, transparent 10px
+      );
+    }
+
+    .world-node {
+      background: var(--purple);
+      border: 3px solid var(--violet);
+      border-radius: 6px;
+      padding: 16px 18px 14px;
+      width: 100%;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s, border-color 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .world-node:hover:not(.locked) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(124,58,237,0.4);
+      border-color: var(--pink);
+    }
+    .world-node.locked { opacity: 0.42; cursor: not-allowed; filter: grayscale(0.5); }
+    .world-node.complete { border-color: var(--green); box-shadow: 0 0 16px rgba(6,214,160,0.2); }
+    .world-node.active-world {
+      border-color: var(--cyan);
+      animation: worldPulse 2.2s ease-in-out infinite;
+    }
+    @keyframes worldPulse {
+      0%,100% { box-shadow: 0 0 14px rgba(76,201,240,0.25); }
+      50%     { box-shadow: 0 0 30px rgba(76,201,240,0.5); }
+    }
+
+    .world-icon { font-size: 2rem; flex-shrink: 0; width: 48px; text-align: center; }
+    .world-info { flex: 1; text-align: left; }
+    .world-num {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.36rem; color: var(--cyan);
+      letter-spacing: 0.1em; margin-bottom: 4px;
+    }
+    .world-name {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.52rem; color: var(--yellow);
+      letter-spacing: 0.04em; line-height: 1.5; margin-bottom: 4px;
+    }
+    .world-desc {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700; font-size: 0.76rem;
+      color: rgba(255,255,254,0.6); line-height: 1.4;
+    }
+    .world-status {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.36rem; letter-spacing: 0.06em; flex-shrink: 0;
+    }
+    .world-status.s-lock   { color: rgba(255,255,254,0.3); }
+    .world-status.s-go     { color: var(--green); animation: blink 1.4s step-end infinite; }
+    .world-status.s-done   { color: var(--yellow); }
+    .world-status.s-replay { color: var(--cyan); }
+
+    .badges-row {
+      display: flex; gap: 8px; flex-wrap: wrap;
+      justify-content: center; margin-top: 20px;
+      position: relative; z-index: 1;
+    }
+    .badge-chip {
+      display: flex; align-items: center; gap: 5px;
+      background: rgba(45,27,105,0.6);
+      border: 1px solid rgba(124,58,237,0.35);
+      border-radius: 3px; padding: 5px 9px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.3rem; color: rgba(255,255,254,0.4);
+      letter-spacing: 0.05em;
+      transition: border-color 0.3s, color 0.3s;
+    }
+    .badge-chip.earned {
+      border-color: var(--yellow); color: var(--yellow);
+      box-shadow: 0 0 8px rgba(255,214,10,0.2);
+    }
+    .badge-chip .badge-icon { font-size: 0.9rem; }
+
+    /* ══════════════════════════════════════════════════════════════ */
+    /*  COMBO MECHANIC                                                */
+    /* ══════════════════════════════════════════════════════════════ */
+    .combo-instruction {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.42rem; color: var(--cyan);
+      letter-spacing: 0.04em; line-height: 1.8;
+      margin-bottom: 10px; text-align: center;
+    }
+    .combo-counter {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.36rem; color: var(--yellow);
+      letter-spacing: 0.06em; text-align: center;
+      margin-bottom: 8px; min-height: 1.2em;
+    }
+    .combo-grid {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px;
+    }
+    @media (max-width: 420px) { .combo-grid { grid-template-columns: 1fr 1fr; } }
+
+    .combo-btn {
+      background: var(--purple);
+      border: 2px solid var(--violet); border-radius: 6px;
+      padding: 11px 7px 9px;
+      font-family: 'Press Start 2P', monospace;
+      cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+      opacity: 0; transform: translateY(10px);
+      transition: border-color 0.15s, background 0.15s, transform 0.2s, opacity 0.2s;
+      text-align: center;
+    }
+    .combo-btn.revealed { opacity: 1; transform: translateY(0); }
+    .combo-btn:hover:not(:disabled):not(.selected) {
+      border-color: var(--cyan); background: rgba(76,201,240,0.08); transform: scale(1.03);
+    }
+    .combo-btn.selected {
+      border-color: var(--yellow); background: rgba(255,214,10,0.1);
+      box-shadow: 0 0 10px rgba(255,214,10,0.25);
+    }
+    .combo-btn.selected .combo-letter { background: var(--yellow); color: var(--navy); }
+    .combo-btn:disabled { cursor: default; }
+    .combo-btn.correct-combo { border-color: var(--green); background: rgba(6,214,160,0.12); }
+    .combo-btn.wrong-combo   { border-color: var(--pink);  background: rgba(247,37,133,0.1); }
+    .combo-letter {
+      width: 16px; height: 16px; border-radius: 2px;
+      background: var(--navy); color: rgba(255,255,254,0.5);
+      font-family: 'Press Start 2P', monospace; font-size: 0.34rem;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .combo-emoji { font-size: 1.3rem; }
+    .combo-label {
+      font-size: 0.34rem; color: rgba(255,255,254,0.75);
+      text-transform: uppercase; letter-spacing: 0.03em; line-height: 1.4;
+    }
+    .combo-submit-btn {
+      font-family: 'Press Start 2P', monospace; font-size: 0.44rem;
+      background: var(--violet); color: var(--white);
+      padding: 11px 18px; border: 3px solid var(--violet-dark); border-radius: 4px;
+      box-shadow: 0 4px 0 var(--violet-dark); cursor: pointer; width: 100%;
+      letter-spacing: 0.04em;
+      transition: transform 0.1s, box-shadow 0.1s, opacity 0.2s; margin-top: 4px;
+    }
+    .combo-submit-btn:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: none; }
+    .combo-submit-btn:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 6px 0 var(--violet-dark); }
+
+    /* ══════════════════════════════════════════════════════════════ */
+    /*  HUD EXTRAS                                                    */
+    /* ══════════════════════════════════════════════════════════════ */
+    .scenario-dots { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+    .s-dot {
+      width: 9px; height: 9px; border-radius: 2px;
+      background: rgba(255,255,254,0.15); border: 1px solid rgba(255,255,254,0.2);
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .s-dot.done    { background: var(--green);  border-color: var(--green); }
+    .s-dot.wrong   { background: var(--pink);   border-color: var(--pink); }
+    .s-dot.current { background: var(--yellow); border-color: var(--yellow); animation: blink 0.8s step-end infinite; }
+    .hud-world-label {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.34rem; color: var(--cyan); letter-spacing: 0.08em;
+    }
+    .btn-map {
+      font-family: 'Press Start 2P', monospace; font-size: 0.36rem;
+      background: transparent; color: rgba(76,201,240,0.65);
+      border: 1px solid rgba(76,201,240,0.28); border-radius: 3px;
+      padding: 5px 9px; cursor: pointer; letter-spacing: 0.04em; margin-top: 6px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .btn-map:hover { color: var(--cyan); border-color: var(--cyan); }
+
+    /* ══════════════════════════════════════════════════════════════ */
+    /*  OVERLAYS                                                      */
+    /* ══════════════════════════════════════════════════════════════ */
+    #world-unlock-overlay {
+      position: fixed; inset: 0;
+      background: rgba(15,14,23,0.96); z-index: 700;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.4s ease; padding: 20px;
+    }
+    #world-unlock-overlay.show { opacity: 1; pointer-events: all; }
+    .unlock-world-icon { font-size: 4rem; margin-bottom: 14px; animation: stampIn 0.7s cubic-bezier(0.22,0.61,0.36,1) both; }
+    .unlock-world-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: clamp(0.58rem, 3vw, 0.82rem);
+      color: var(--yellow); text-shadow: 3px 3px 0 var(--pink);
+      margin-bottom: 10px; text-align: center;
+      letter-spacing: 0.05em; line-height: 1.6;
+      animation: bannerDrop 0.5s ease both; animation-delay: 0.2s;
+    }
+    .unlock-world-sub {
+      font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.9rem;
+      color: rgba(255,255,254,0.72); margin-bottom: 26px; text-align: center;
+      line-height: 1.55; max-width: 340px;
+      animation: slideUp 0.5s ease both; animation-delay: 0.35s;
+    }
+    .btn-enter-world {
+      font-family: 'Press Start 2P', monospace; font-size: 0.54rem;
+      background: var(--pink); color: var(--white);
+      padding: 13px 26px; border: 3px solid var(--pink-dark); border-radius: 4px;
+      box-shadow: 0 4px 0 var(--pink-dark); cursor: pointer; letter-spacing: 0.04em;
+      animation: btnPulse 2s ease-in-out infinite;
+    }
+    .btn-enter-world:hover { transform: translateY(-2px); box-shadow: 0 6px 0 var(--pink-dark); }
+
+    #unlock-banner {
+      position: fixed; bottom: 48px; left: 50%;
+      transform: translateX(-50%) translateY(120px);
+      z-index: 650;
+      background: linear-gradient(135deg, var(--purple), #1a0a4e);
+      border: 2px solid var(--yellow); border-radius: 4px;
+      padding: 11px 18px;
+      font-family: 'Press Start 2P', monospace; font-size: 0.4rem;
+      color: var(--yellow); letter-spacing: 0.06em;
+      line-height: 1.8; text-align: center; pointer-events: none;
+      transition: transform 0.5s cubic-bezier(0.34,1.56,0.64,1);
+      white-space: nowrap; box-shadow: 0 0 18px rgba(255,214,10,0.3);
+    }
+    #unlock-banner.show { transform: translateX(-50%) translateY(0); }
+
+    #badge-fanfare {
+      position: fixed; top: 60px; left: 50%;
+      transform: translateX(-50%) scale(0.7);
+      z-index: 680;
+      background: var(--purple); border: 3px solid var(--yellow);
+      border-radius: 6px; padding: 14px 22px; text-align: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+      box-shadow: 0 0 28px rgba(255,214,10,0.4);
+    }
+    #badge-fanfare.show { opacity: 1; transform: translateX(-50%) scale(1); }
+    .fanfare-icon { font-size: 2rem; margin-bottom: 5px; }
+    .fanfare-title {
+      font-family: 'Press Start 2P', monospace; font-size: 0.38rem;
+      color: var(--yellow); letter-spacing: 0.08em; line-height: 1.7; margin-bottom: 4px;
+    }
+    .fanfare-name {
+      font-family: 'Press Start 2P', monospace; font-size: 0.5rem;
+      color: var(--white); letter-spacing: 0.04em;
+    }
+
+    /* Results badges */
+    .results-badges { margin: 0 0 16px; text-align: center; }
+    .results-badges-label {
+      font-family: 'Press Start 2P', monospace; font-size: 0.36rem;
+      color: var(--yellow); letter-spacing: 0.08em; margin-bottom: 10px;
+    }
+    .results-badges-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
   </style>
 </head>
 <body>
@@ -911,6 +1205,20 @@
   <div id="flash-overlay"></div>
   <div id="toast"></div>
   <div class="watermark">✦ THESTAFF LOUNGE26 ✦ TPT ✦</div>
+
+  <!-- ── Overlay elements ───────────────────────────────────────── -->
+  <div id="world-unlock-overlay">
+    <div class="unlock-world-icon" id="unlock-world-icon">🌌</div>
+    <div class="unlock-world-title" id="unlock-world-title">WORLD 3 UNLOCKED!</div>
+    <div class="unlock-world-sub" id="unlock-world-sub">You've proven yourself. The deepest layers await.</div>
+    <button class="btn-enter-world" id="btn-enter-world" onclick="dismissWorldUnlock()">▶ ENTER WORLD</button>
+  </div>
+  <div id="unlock-banner">🔓 NEW SCENARIO UNLOCKED!</div>
+  <div id="badge-fanfare">
+    <div class="fanfare-icon" id="fanfare-icon">🏅</div>
+    <div class="fanfare-title">BADGE EARNED!</div>
+    <div class="fanfare-name" id="fanfare-name">FIRST READ</div>
+  </div>
 
   <!-- ════════════════════════════════════════════════════════════ -->
   <!--  HOME SCREEN                                                 -->
@@ -945,8 +1253,20 @@
 
       <div class="casel-badge">🌱 SELF-AWARENESS + SOCIAL AWARENESS</div>
       <br />
-      <button class="btn btn-primary" onclick="startGame()">▶ START GAME</button>
+      <button class="btn btn-primary" onclick="showWorldSelect()">▶ START GAME</button>
     </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!--  WORLD SELECT SCREEN                                         -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <div class="screen" id="world-select-screen">
+    <div class="star-field" id="star-field-ws" aria-hidden="true"></div>
+    <div class="brand-tag" style="margin-bottom:12px">★ SELECT WORLD ★</div>
+    <div class="world-select-title">CHOOSE YOUR MISSION</div>
+    <div class="world-select-sub">Each world goes deeper than the last.</div>
+    <div class="world-map" id="world-map"><!-- injected by JS --></div>
+    <div class="badges-row" id="badges-row-ws"><!-- injected by JS --></div>
   </div>
 
   <!-- ════════════════════════════════════════════════════════════ -->
@@ -955,10 +1275,13 @@
   <div class="screen" id="game-screen">
     <div class="progress-wrap">
       <div class="progress-top">
-        <span class="hud-logo">EMOTION DECODER</span>
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <span class="hud-logo">EMOTION DECODER</span>
+          <span class="hud-world-label" id="hud-world-label">WORLD 1</span>
+        </div>
         <div class="score-live-wrap">
           <span class="streak-badge"  id="streak-badge">🔥 ×1</span>
-          <span class="progress-text" id="progress-text">1/8</span>
+          <div class="scenario-dots"  id="scenario-dots"></div>
           <span class="score-live"    id="score-live">★ 0</span>
         </div>
       </div>
@@ -1106,14 +1429,251 @@
       }
     ];
 
+    /* ── Rename World 1 ───────────────────────────────────────── */
+    const WORLD1_SCENARIOS = SCENARIOS;
+
+    /* ─────────────────────────────────────────────────────────────
+       WORLD 2 SCENARIOS — Emotion Combos (pick 2 of 6)
+    ───────────────────────────────────────────────────────────── */
+    const WORLD2_SCENARIOS = [
+      {
+        name: "Keisha", num: 1, world: 2, isCombo: true,
+        text: "Keisha just won the spelling bee in front of the whole school. She holds her trophy and waves — but as soon as she steps offstage she immediately texts her mom asking if she did okay. She keeps replaying the moment she almost misspelled the last word.",
+        comboChoices: [
+          { emoji:"🏆", label:"Proud",    id:"proud"   },
+          { emoji:"😬", label:"Anxious",  id:"anxious" },
+          { emoji:"😮", label:"Shocked",  id:"shocked" },
+          { emoji:"🤩", label:"Excited",  id:"excited" },
+          { emoji:"😟", label:"Doubtful", id:"doubtful"},
+          { emoji:"😊", label:"Happy",    id:"happy"   }
+        ],
+        correct: ["proud","anxious"],
+        trueEmotion: "PROUD + ANXIOUS",
+        explanation: "Winning should feel great — and it does! Keisha is proud. But replaying the near-miss and immediately seeking reassurance shows that anxiety is running alongside the pride. Two real emotions can exist at the same time, especially in high-stakes moments.",
+        didYouKnow: "Psychologists call this 'emotional ambivalence' — holding two conflicting feelings at once. It's completely normal and actually a sign of emotional sophistication."
+      },
+      {
+        name: "Darius", num: 2, world: 2, isCombo: true,
+        text: "Darius's parents tell him they're moving across the country over winter break. His room is full of posters from his old neighborhood. He starts packing his things the same day — but he spends twenty minutes staring at a photo of his friends before putting it in the box.",
+        comboChoices: [
+          { emoji:"😢", label:"Sad",      id:"sad"     },
+          { emoji:"😤", label:"Angry",    id:"angry"   },
+          { emoji:"😰", label:"Scared",   id:"scared"  },
+          { emoji:"😮", label:"Shocked",  id:"shocked" },
+          { emoji:"💔", label:"Grieving", id:"grieving"},
+          { emoji:"🤷", label:"Numb",     id:"numb"    }
+        ],
+        correct: ["grieving","scared"],
+        trueEmotion: "GRIEVING + SCARED",
+        explanation: "Staring at that photo before boxing it is a small act of grief — saying goodbye to a version of your life. Packing efficiently on day one can also be a way of managing fear by staying busy. Both grief and fear about the unknown are real and valid here.",
+        didYouKnow: "Anticipatory grief — grieving something before it's fully gone — is a documented emotional process. It often shows up as numbness, sadness, or compulsive busy-ness."
+      },
+      {
+        name: "Simone", num: 3, world: 2, isCombo: true,
+        text: "Simone's best friend starts hanging out with a new group and stops texting back as fast. Simone posts a picture captioned 'having the best week ever!' and tags a bunch of people. She smiles through every photo but checks her phone obsessively after posting.",
+        comboChoices: [
+          { emoji:"😄", label:"Happy",    id:"happy"    },
+          { emoji:"💔", label:"Hurt",     id:"hurt"     },
+          { emoji:"😒", label:"Jealous",  id:"jealous"  },
+          { emoji:"😰", label:"Anxious",  id:"anxious"  },
+          { emoji:"😎", label:"Confident",id:"confident"},
+          { emoji:"😑", label:"Bored",    id:"bored"    }
+        ],
+        correct: ["hurt","jealous"],
+        trueEmotion: "HURT + JEALOUS",
+        explanation: "The 'best week ever' post is a performance — trying to show the friend (and maybe herself) that she's fine. Checking the phone obsessively reveals she's hoping for a reaction. That's hurt hoping to be noticed, layered with jealousy over the new group.",
+        didYouKnow: "Social media posts made right after feeling rejected often function as 'social signaling' — an unconscious attempt to reclaim status or get attention from the person who withdrew."
+      },
+      {
+        name: "Eli", num: 4, world: 2, isCombo: true,
+        text: "Eli's coach pulls him out of the starting lineup and gives his spot to a newer player. Eli cheers loudly from the bench for every good play his team makes — but after the game, when someone says 'great sportsmanship,' he goes home and cries alone in his room.",
+        comboChoices: [
+          { emoji:"🏅", label:"Proud",     id:"proud"    },
+          { emoji:"😊", label:"Happy",     id:"happy"    },
+          { emoji:"😞", label:"Hurt",      id:"hurt"     },
+          { emoji:"😤", label:"Frustrated",id:"frustrated"},
+          { emoji:"😠", label:"Angry",     id:"angry"    },
+          { emoji:"😌", label:"Peaceful",  id:"peaceful" }
+        ],
+        correct: ["hurt","frustrated"],
+        trueEmotion: "HURT + FRUSTRATED",
+        explanation: "Eli is showing genuine sportsmanship outwardly — and maybe part of him is glad the team is winning. But crying alone afterward is the real tell: he's deeply hurt by being benched, and likely frustrated that his effort didn't keep his spot. Public bravery doesn't erase private pain.",
+        didYouKnow: "Research on athletes shows that benching triggers the same emotional pattern as social rejection — the brain processes both through overlapping neural circuits."
+      },
+      {
+        name: "Maya", num: 5, world: 2, isCombo: true,
+        text: "Maya gets invited to her first high school party. She spends two hours getting ready and posts a confident selfie before leaving. At the party she stands near the snack table the whole time, says yes to every conversation, laughs extra loud, and leaves an hour early claiming she's tired.",
+        comboChoices: [
+          { emoji:"🎉", label:"Excited",    id:"excited"  },
+          { emoji:"😰", label:"Nervous",    id:"nervous"  },
+          { emoji:"😊", label:"Happy",      id:"happy"    },
+          { emoji:"😤", label:"Overwhelmed",id:"overwhelmed"},
+          { emoji:"😴", label:"Tired",      id:"tired"    },
+          { emoji:"😶", label:"Out of place",id:"outofplace"}
+        ],
+        correct: ["nervous","overwhelmed"],
+        trueEmotion: "NERVOUS + OVERWHELMED",
+        explanation: "Two hours of prep + extra loud laughter + snack table anchoring + leaving early are all anxiety management strategies. The confident selfie was made for an audience (including herself). She wanted to be there but her nervous system found the whole thing too much.",
+        didYouKnow: "Staying near food or drink stations at social events is a documented anxiety behavior — it gives you something to do with your hands and a reason to hover without engaging."
+      },
+      {
+        name: "Theo", num: 6, world: 2, isCombo: true,
+        text: "Theo's parents have been arguing loudly every night for a week. At school he keeps cracking jokes, finishing everyone's sentences, and organizing a spontaneous game at lunch. His teacher writes on his report card: 'natural leader, brings energy to the room.'",
+        comboChoices: [
+          { emoji:"😄", label:"Happy",     id:"happy"    },
+          { emoji:"😰", label:"Scared",    id:"scared"   },
+          { emoji:"💪", label:"Confident", id:"confident"},
+          { emoji:"😣", label:"Stressed",  id:"stressed" },
+          { emoji:"😶", label:"Numb",      id:"numb"     },
+          { emoji:"🤹", label:"Performing",id:"performing"}
+        ],
+        correct: ["scared","stressed"],
+        trueEmotion: "SCARED + STRESSED",
+        explanation: "Organizing games and filling silences is Theo's way of controlling something — school — when home feels chaotic. The teacher sees a leader; what's underneath is a kid running from fear by staying in motion. Constant action is a classic way of not having to sit with stress.",
+        didYouKnow: "Children in unstable home environments often become 'social conductors' at school — controlling group dynamics as a coping mechanism when family life feels uncontrollable."
+      },
+      {
+        name: "Zara", num: 7, world: 2, isCombo: true,
+        text: "Zara's grandmother passes away. At the funeral, Zara is the one comforting everyone else — handing out tissues, making sure people have water, whispering 'it's okay' to her crying cousins. That night her dad finds her asleep at her desk with a drawing of her grandmother in her hand.",
+        comboChoices: [
+          { emoji:"😢", label:"Sad",         id:"sad"     },
+          { emoji:"💪", label:"Strong",       id:"strong"  },
+          { emoji:"💔", label:"Heartbroken",  id:"heartbroken"},
+          { emoji:"😶", label:"Disconnected", id:"disconnected"},
+          { emoji:"🤗", label:"Nurturing",    id:"nurturing"},
+          { emoji:"😰", label:"Overwhelmed",  id:"overwhelmed"}
+        ],
+        correct: ["heartbroken","disconnected"],
+        trueEmotion: "HEARTBROKEN + DISCONNECTED",
+        explanation: "Zara is taking care of everyone but herself — a grief response where focusing outward blocks you from feeling your own pain. The drawing found later tells the real story: she's heartbroken and unable to fully access the emotion in public. The caretaker role disconnects her from her own grief.",
+        didYouKnow: "Compulsive caretaking during bereavement is called 'grief displacement' — people manage unbearable loss by focusing on other people's needs instead of their own."
+      },
+      {
+        name: "Caleb", num: 8, world: 2, isCombo: true,
+        text: "Caleb gets a 64 on a test he studied hard for. In class, he immediately raises his hand to ask the teacher about extra credit, takes detailed notes during the review, and tells his friend 'it's fine, I'll make it up.' That weekend he skips the movie his friends invited him to and studies for five hours straight.",
+        comboChoices: [
+          { emoji:"💪", label:"Determined",  id:"determined"},
+          { emoji:"😤", label:"Frustrated",  id:"frustrated"},
+          { emoji:"😊", label:"Fine",         id:"fine"     },
+          { emoji:"😟", label:"Worried",      id:"worried"  },
+          { emoji:"😰", label:"Afraid",       id:"afraid"   },
+          { emoji:"😞", label:"Disappointed", id:"disappointed"}
+        ],
+        correct: ["disappointed","afraid"],
+        trueEmotion: "DISAPPOINTED + AFRAID",
+        explanation: "Immediate extra-credit asking, 5-hour solo study weekend, skipping social plans — that's not just determination. It's fear driving the bus. Caleb is disappointed in himself and afraid of what a bad grade means about him. 'It's fine' is the mask; the all-weekend study session is the reality.",
+        didYouKnow: "Overcompensation after failure — extreme studying, perfectionist planning — is often driven by fear of inadequacy rather than pure ambition. The emotion underneath is usually shame or fear, not motivation."
+      }
+    ];
+
+    /* ─────────────────────────────────────────────────────────────
+       WORLD 3 SCENARIOS — Hidden Depths (single pick, deeper twist)
+    ───────────────────────────────────────────────────────────── */
+    const WORLD3_SCENARIOS = [
+      {
+        name: "Ms. Rivera", num: 1, world: 3, isTwist: false,
+        text: "Ms. Rivera is the strictest teacher in school — no late work, no exceptions, no small talk. She corrects every grammar mistake, assigns the most homework, and has never been seen smiling in class. Three of her former students come back every year just to visit her.",
+        choices: [
+          { emoji:"😠", label:"Mean",      id:"mean"      },
+          { emoji:"😤", label:"Rigid",     id:"rigid"     },
+          { emoji:"❤️", label:"Caring",    id:"caring"    },
+          { emoji:"😶", label:"Indifferent",id:"indifferent"}
+        ],
+        correct: "caring",
+        trueEmotion: "DEEPLY CARING",
+        explanation: "The strictness, the corrections, the homework load — these are expressions of a high standard set because Ms. Rivera believes her students can meet it. The returning students are the tell: people don't revisit teachers who made them feel small. They revisit the ones who believed in them hard.",
+        didYouKnow: "Research on teacher impact shows that perceived strictness and actual student respect are positively correlated when the strictness is paired with consistent belief in student ability."
+      },
+      {
+        name: "Brandon", num: 2, world: 3, isTwist: false,
+        text: "Brandon is the most popular kid in school — voted class president, always surrounded by people, first invited to every party. He has the most followers on social media. But he messages the school counselor at 11pm on a Tuesday and says: 'Can I come in tomorrow? I think something's wrong with me.'",
+        choices: [
+          { emoji:"😊", label:"Happy",   id:"happy"   },
+          { emoji:"😟", label:"Lonely",  id:"lonely"  },
+          { emoji:"😤", label:"Arrogant",id:"arrogant"},
+          { emoji:"😰", label:"Stressed",id:"stressed"}
+        ],
+        correct: "lonely",
+        trueEmotion: "PROFOUNDLY LONELY",
+        explanation: "You can be surrounded by people and completely alone at the same time. Brandon has audiences, not intimacy. The 11pm message to the counselor — not a friend — reveals there's no one in his life he can actually talk to. Social popularity and emotional connection are not the same thing.",
+        didYouKnow: "Studies consistently show that social media follower counts have zero correlation with felt loneliness — and in some demographics, higher follower counts predict greater loneliness."
+      },
+      {
+        name: "Mrs. Okafor", num: 3, world: 3, isTwist: false,
+        text: "Mrs. Okafor laughs at herself constantly — tells the class when she makes mistakes on the board, jokes about forgetting names, and always admits when she doesn't know something. Some students think she doesn't care. She gets the highest ratings of any teacher at the school year after year.",
+        choices: [
+          { emoji:"😄", label:"Carefree",    id:"carefree"   },
+          { emoji:"💪", label:"Secure",       id:"secure"     },
+          { emoji:"😶", label:"Checked out",  id:"checkedout" },
+          { emoji:"😟", label:"Insecure",     id:"insecure"   }
+        ],
+        correct: "secure",
+        trueEmotion: "DEEPLY SECURE",
+        explanation: "Laughing at your own mistakes takes real confidence. People who are truly insecure can't tolerate being seen as wrong — they defend, deflect, or get defensive. Mrs. Okafor can admit flaws openly because her identity isn't threatened by them. That's the deepest kind of security.",
+        didYouKnow: "Psychological research shows that the ability to laugh at yourself is one of the strongest predictors of emotional resilience and secure attachment style."
+      },
+      {
+        name: "The Whole Class", num: 4, world: 3, isTwist: true,
+        text: "It's the last day of school. Every student says they're relieved. They cheer when the bell rings, throw papers in the air, and post 'FINALLY FREE' online. But three different students independently stay after class to talk to the teacher. One asks for summer reading recommendations. Another asks if she'll have the same teacher next year. A third just hangs around without saying anything.",
+        choices: [
+          { emoji:"🎉", label:"Purely Excited",   id:"excited"  },
+          { emoji:"😶", label:"Actually Sad",      id:"sad"      },
+          { emoji:"😬", label:"Relieved + Anxious",id:"mixed"    },
+          { emoji:"💪", label:"Ready to Move On",  id:"ready"    }
+        ],
+        correct: "mixed",
+        trueEmotion: "RELIEVED + ANXIOUS",
+        explanation: "The cheering is real — relief is real. But three students independently finding reasons to stay after class tells the deeper story: the structure and safety of school also ends today. The summer is uncertain. The teacher represented something stable. Both the relief and the quiet grief underneath are real at the same time.",
+        didYouKnow: "End-of-year transitions trigger what researchers call 'ambiguous loss' — grief over something ending that also brought difficulty. The human brain can feel genuine relief and genuine sadness about the same thing simultaneously."
+      }
+    ];
+
+    /* ─────────────────────────────────────────────────────────────
+       WORLDS META
+    ───────────────────────────────────────────────────────────── */
+    const WORLDS = [
+      {
+        id: 1, icon: '🔍', name: 'SURFACE READS',
+        desc: 'Decode what people show vs. what they really feel.',
+        scenarios: WORLD1_SCENARIOS, totalScenarios: 8
+      },
+      {
+        id: 2, icon: '🌀', name: 'EMOTION COMBOS',
+        desc: 'Pick TWO emotions at once — feelings are layered.',
+        scenarios: WORLD2_SCENARIOS, totalScenarios: 8
+      },
+      {
+        id: 3, icon: '🌌', name: 'HIDDEN DEPTHS',
+        desc: 'The final frontier — nothing is what it seems.',
+        scenarios: WORLD3_SCENARIOS, totalScenarios: 4
+      }
+    ];
+
+    /* ─────────────────────────────────────────────────────────────
+       BADGE DEFS
+    ───────────────────────────────────────────────────────────── */
+    const BADGE_DEFS = [
+      { id:'first_read',    icon:'📖', name:'FIRST READ',      desc:'Complete any scenario',           condition: s => s.totalPlayed >= 1 },
+      { id:'w1_complete',   icon:'🔍', name:'DECODER',         desc:'Finish World 1',                  condition: s => s.w1Done },
+      { id:'w2_complete',   icon:'🌀', name:'COMBO MASTER',    desc:'Finish World 2',                  condition: s => s.w2Done },
+      { id:'w3_complete',   icon:'🌌', name:'DEPTH DIVER',     desc:'Finish World 3',                  condition: s => s.w3Done },
+      { id:'perfect_world', icon:'⭐', name:'PERFECT WORLD',   desc:'8/8 on any world',                condition: s => s.perfectWorld },
+      { id:'all_worlds',    icon:'🏆', name:'EMOTION EXPERT',  desc:'Complete all 3 worlds',           condition: s => s.w1Done && s.w2Done && s.w3Done }
+    ];
+
     /* ─────────────────────────────────────────────────────────────
        STATE
     ───────────────────────────────────────────────────────────── */
-    let currentIdx  = 0;
-    let score       = 0;
-    let streak      = 0;
-    let lastCorrect = false;
-    let audioCtx    = null;
+    let currentIdx    = 0;
+    let score         = 0;
+    let streak        = 0;
+    let lastCorrect   = false;
+    let audioCtx      = null;
+    let currentWorld  = 1;
+    let currentScenarios = WORLD1_SCENARIOS;
+    let worldResults  = {};   // { worldId: { score, total, answers: [] } }
+    let comboSelected = [];   // for World 2/3 combo mechanic
+    let halfRightCount = 0;   // W2 half-right tracker
 
     /* ─────────────────────────────────────────────────────────────
        AUDIO — Web Audio API
@@ -1178,6 +1738,303 @@
         `;
         field.appendChild(dot);
       }
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       SESSION STORAGE HELPERS
+    ───────────────────────────────────────────────────────────── */
+    function getWorldState() {
+      try {
+        return JSON.parse(sessionStorage.getItem('world_state') || '{}');
+      } catch(e) { return {}; }
+    }
+    function setWorldState(ws) {
+      try { sessionStorage.setItem('world_state', JSON.stringify(ws)); } catch(e) {}
+    }
+    function getBadges() {
+      try {
+        return JSON.parse(sessionStorage.getItem('arcade_badges') || '[]');
+      } catch(e) { return []; }
+    }
+    function setBadges(b) {
+      try { sessionStorage.setItem('arcade_badges', JSON.stringify(b)); } catch(e) {}
+    }
+    function isWorldUnlocked(id) {
+      if (id === 1) return true;
+      const ws = getWorldState();
+      if (id === 2) return ws.w1Done || false;
+      if (id === 3) return ws.w2Done || false;
+      return false;
+    }
+    function isWorldComplete(id) {
+      const ws = getWorldState();
+      if (id === 1) return ws.w1Done || false;
+      if (id === 2) return ws.w2Done || false;
+      if (id === 3) return ws.w3Done || false;
+      return false;
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       WORLD SELECT SCREEN
+    ───────────────────────────────────────────────────────────── */
+    function showWorldSelect() {
+      renderWorldMap();
+      renderBadgesRowWS();
+      // populate star field for world select
+      const wsf = document.getElementById('star-field-ws');
+      if (wsf && !wsf.hasChildNodes()) {
+        for (let i = 0; i < 40; i++) {
+          const d = document.createElement('div');
+          d.className = 'star-dot';
+          d.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;opacity:${0.2+Math.random()*0.4};width:${Math.random()>0.8?2:1}px;height:${Math.random()>0.8?2:1}px;`;
+          wsf.appendChild(d);
+        }
+      }
+      showScreen('world-select-screen');
+    }
+
+    function renderWorldMap() {
+      const container = document.getElementById('world-map');
+      if (!container) return;
+      container.innerHTML = '';
+      WORLDS.forEach((w, idx) => {
+        const unlocked = isWorldUnlocked(w.id);
+        const complete = isWorldComplete(w.id);
+        const ws = getWorldState();
+        const inProgress = (w.id === currentWorld) && !complete;
+        let statusClass, statusText;
+        if (!unlocked)     { statusClass = 's-lock';   statusText = '🔒 LOCKED'; }
+        else if (complete) { statusClass = 's-replay';  statusText = '↩ REPLAY'; }
+        else               { statusClass = 's-go';      statusText = '▶ GO'; }
+
+        let nodeClass = 'world-node';
+        if (!unlocked) nodeClass += ' locked';
+        else if (complete) nodeClass += ' complete';
+        else nodeClass += ' active-world';
+
+        const node = document.createElement('div');
+        node.className = nodeClass;
+        node.innerHTML = `
+          <div class="world-icon">${w.icon}</div>
+          <div class="world-info">
+            <div class="world-num">WORLD ${w.id}</div>
+            <div class="world-name">${w.name}</div>
+            <div class="world-desc">${w.desc}</div>
+          </div>
+          <div class="world-status ${statusClass}">${statusText}</div>
+        `;
+        if (unlocked) {
+          node.onclick = () => selectWorld(w.id);
+        }
+        container.appendChild(node);
+
+        // connector between worlds
+        if (idx < WORLDS.length - 1) {
+          const conn = document.createElement('div');
+          conn.className = 'world-connector' + (isWorldUnlocked(w.id + 1) ? ' unlocked' : '');
+          container.appendChild(conn);
+        }
+      });
+    }
+
+    function renderBadgesRowWS() {
+      const row = document.getElementById('badges-row-ws');
+      if (!row) return;
+      const earned = getBadges();
+      row.innerHTML = BADGE_DEFS.map(b => `
+        <div class="badge-chip ${earned.includes(b.id) ? 'earned' : ''}">
+          <span class="badge-icon">${b.icon}</span>${b.name}
+        </div>
+      `).join('');
+    }
+
+    function selectWorld(id) {
+      if (!isWorldUnlocked(id)) return;
+      startGame(id);
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       BADGE SYSTEM
+    ───────────────────────────────────────────────────────────── */
+    function checkAndAwardBadges() {
+      const ws = getWorldState();
+      const earned = getBadges();
+      const tStats = getTotalStats();
+      const ctx = {
+        totalPlayed: tStats.totalPlayed || 0,
+        w1Done: ws.w1Done || false,
+        w2Done: ws.w2Done || false,
+        w3Done: ws.w3Done || false,
+        perfectWorld: ws.perfectWorld || false
+      };
+      const newBadges = [];
+      BADGE_DEFS.forEach(b => {
+        if (!earned.includes(b.id) && b.condition(ctx)) {
+          newBadges.push(b);
+          earned.push(b.id);
+        }
+      });
+      if (newBadges.length > 0) {
+        setBadges(earned);
+        // Show fanfare sequentially
+        let delay = 400;
+        newBadges.forEach(b => {
+          setTimeout(() => showBadgeFanfare(b), delay);
+          delay += 2800;
+        });
+      }
+    }
+
+    function showBadgeFanfare(def) {
+      const el = document.getElementById('badge-fanfare');
+      document.getElementById('fanfare-icon').textContent = def.icon;
+      document.getElementById('fanfare-name').textContent = def.name;
+      el.classList.add('show');
+      playSound('streak');
+      setTimeout(() => el.classList.remove('show'), 2400);
+    }
+
+    function getTotalStats() {
+      try {
+        return JSON.parse(sessionStorage.getItem('total_stats') || '{"totalPlayed":0}');
+      } catch(e) { return {totalPlayed:0}; }
+    }
+    function incrementTotalPlayed() {
+      const s = getTotalStats();
+      s.totalPlayed = (s.totalPlayed || 0) + 1;
+      try { sessionStorage.setItem('total_stats', JSON.stringify(s)); } catch(e) {}
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       SCENARIO DOT MAP IN HUD
+    ───────────────────────────────────────────────────────────── */
+    function renderScenarioDots() {
+      const container = document.getElementById('scenario-dots');
+      if (!container) return;
+      const total = currentScenarios.length;
+      const wr = worldResults[currentWorld] || { answers: [] };
+      container.innerHTML = '';
+      for (let i = 0; i < total; i++) {
+        const dot = document.createElement('div');
+        dot.className = 's-dot';
+        const ans = wr.answers[i];
+        if (ans === true)  dot.classList.add('done');
+        else if (ans === false) dot.classList.add('wrong');
+        else if (i === currentIdx) dot.classList.add('current');
+        container.appendChild(dot);
+      }
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       UNLOCK BANNER (mid-game notification)
+    ───────────────────────────────────────────────────────────── */
+    let unlockBannerTimer;
+    function showUnlockBanner(msg) {
+      const el = document.getElementById('unlock-banner');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(unlockBannerTimer);
+      unlockBannerTimer = setTimeout(() => el.classList.remove('show'), 2600);
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       WORLD UNLOCK OVERLAY (dramatic World 3 reveal)
+    ───────────────────────────────────────────────────────────── */
+    let pendingWorldUnlockCallback = null;
+    function showWorldUnlockOverlay(worldDef, callback) {
+      document.getElementById('unlock-world-icon').textContent  = worldDef.icon;
+      document.getElementById('unlock-world-title').textContent = `WORLD ${worldDef.id} UNLOCKED!`;
+      document.getElementById('unlock-world-sub').textContent   = worldDef.desc;
+      pendingWorldUnlockCallback = callback;
+      const el = document.getElementById('world-unlock-overlay');
+      el.classList.add('show');
+      playSound('fanfare');
+      launchConfetti();
+    }
+    function dismissWorldUnlock() {
+      document.getElementById('world-unlock-overlay').classList.remove('show');
+      if (pendingWorldUnlockCallback) {
+        pendingWorldUnlockCallback();
+        pendingWorldUnlockCallback = null;
+      }
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       COMBO MECHANIC — toggle selection + submit
+    ───────────────────────────────────────────────────────────── */
+    function handleComboSelect(id) {
+      const btn = document.getElementById('combo-' + id);
+      if (!btn || btn.disabled) return;
+      const idx = comboSelected.indexOf(id);
+      if (idx > -1) {
+        comboSelected.splice(idx, 1);
+        btn.classList.remove('selected');
+      } else {
+        if (comboSelected.length >= 2) return; // max 2
+        comboSelected.push(id);
+        btn.classList.add('selected');
+      }
+      const counter = document.getElementById('combo-counter');
+      if (counter) {
+        counter.textContent = comboSelected.length === 0 ? '' :
+          comboSelected.length === 1 ? '1 SELECTED — PICK 1 MORE' : '2 SELECTED — READY!';
+      }
+      const submitBtn = document.getElementById('combo-submit');
+      if (submitBtn) submitBtn.disabled = comboSelected.length !== 2;
+    }
+
+    function handleComboSubmit() {
+      const s = currentScenarios[currentIdx];
+      if (!s || !s.isCombo) return;
+      // disable all
+      document.querySelectorAll('.combo-btn').forEach(b => b.disabled = true);
+      document.getElementById('combo-submit').disabled = true;
+
+      const correctSet = new Set(s.correct);
+      const selectedSet = new Set(comboSelected);
+      const bothCorrect = s.correct.every(c => selectedSet.has(c)) && comboSelected.length === 2;
+      const oneCorrect  = !bothCorrect && s.correct.some(c => selectedSet.has(c));
+
+      lastCorrect = bothCorrect;
+      const halfRight = oneCorrect;
+
+      if (bothCorrect) {
+        score++;
+        streak++;
+        playSound('correct');
+        flashScreen('flash-correct');
+        popScore();
+        showToast('🎯 PERFECT COMBO!');
+        if (streak >= 2) setTimeout(() => { playSound('streak'); showToast(`🔥 ${streak} IN A ROW!`); }, 350);
+      } else if (halfRight) {
+        halfRightCount++;
+        streak = 0;
+        playSound('wrong');
+        flashScreen('flash-wrong');
+        showToast('⚡ HALF RIGHT...');
+        if (halfRightCount === 3) {
+          showUnlockBanner('🔓 BONUS INSIGHT: You\'re getting closer!');
+        }
+      } else {
+        streak = 0;
+        playSound('wrong');
+        flashScreen('flash-wrong');
+        showToast('✗ KEEP TRYING!');
+      }
+
+      // highlight buttons
+      document.querySelectorAll('.combo-btn').forEach(b => {
+        const id = b.dataset.id;
+        if (correctSet.has(id)) b.classList.add('correct-combo');
+        else if (selectedSet.has(id)) b.classList.add('wrong-combo');
+      });
+
+      incrementTotalPlayed();
+      if (!worldResults[currentWorld]) worldResults[currentWorld] = { score: 0, answers: [] };
+      worldResults[currentWorld].answers[currentIdx] = bothCorrect;
+      if (bothCorrect) worldResults[currentWorld].score = (worldResults[currentWorld].score || 0) + 1;
+
+      setTimeout(() => showReveal(), 1100);
     }
 
     /* ─────────────────────────────────────────────────────────────
@@ -1264,10 +2121,21 @@
     /* ─────────────────────────────────────────────────────────────
        START GAME
     ───────────────────────────────────────────────────────────── */
-    function startGame() {
-      currentIdx = 0;
-      score      = 0;
-      streak     = 0;
+    function startGame(worldId) {
+      worldId = worldId || 1;
+      currentWorld     = worldId;
+      currentScenarios = WORLDS[worldId - 1].scenarios;
+      currentIdx       = 0;
+      score            = 0;
+      streak           = 0;
+      halfRightCount   = 0;
+      comboSelected    = [];
+      if (!worldResults[worldId]) worldResults[worldId] = { score: 0, answers: [] };
+      worldResults[worldId] = { score: 0, answers: [] };
+
+      const hudLabel = document.getElementById('hud-world-label');
+      if (hudLabel) hudLabel.textContent = `WORLD ${worldId} · ${WORLDS[worldId-1].name}`;
+
       playSound('start');
       renderScenario();
       showScreen('game-screen');
@@ -1277,14 +2145,15 @@
        RENDER SCENARIO
     ───────────────────────────────────────────────────────────── */
     function renderScenario() {
-      const s      = SCENARIOS[currentIdx];
-      const pct    = (currentIdx / 8) * 100;
+      const s      = currentScenarios[currentIdx];
+      const total  = currentScenarios.length;
+      const pct    = (currentIdx / total) * 100;
       const fill   = document.getElementById('progress-fill');
       const streak_badge = document.getElementById('streak-badge');
 
       fill.style.width = pct + '%';
-      document.getElementById('progress-text').textContent = `${currentIdx + 1}/8`;
-      document.getElementById('score-live').textContent    = `★ ${score}`;
+      document.getElementById('score-live').textContent = `★ ${score}`;
+      renderScenarioDots();
 
       if (streak >= 2) {
         streak_badge.textContent = `🔥 ×${streak}`;
@@ -1293,18 +2162,42 @@
         streak_badge.classList.remove('visible');
       }
 
-      const shuffled = shuffle([...s.choices]);
-      const caseNum  = String(s.num).padStart(2, '0');
+      const caseNum = String(s.num).padStart(2, '0');
       let headerExtra = s.isTwist
-        ? `<span class="twist-badge">⚡ Plot Twist Finale</span>` : '';
+        ? `<span class="twist-badge">⚡ Plot Twist Finale</span>`
+        : (s.isCombo ? `<span class="twist-badge">🌀 COMBO MODE</span>` : '');
 
-      const LETTERS   = ['A','B','C','D'];
-      const choicesHTML = shuffled.map((c, i) => `
-        <button class="choice-btn" id="choice-${c.id}" onclick="handleChoice('${c.id}','${s.correct}')">
-          <span class="choice-letter">${LETTERS[i]}</span>
-          <span class="choice-emoji">${c.emoji}</span>
-          <span class="choice-label-text">${c.label}</span>
-        </button>`).join('');
+      let choicesSection;
+      if (s.isCombo) {
+        comboSelected = [];
+        const LETTERS = ['A','B','C','D','E','F'];
+        const comboHTML = s.comboChoices.map((c, i) => `
+          <button class="combo-btn" id="combo-${c.id}" data-id="${c.id}" onclick="handleComboSelect('${c.id}')">
+            <div class="combo-letter">${LETTERS[i]}</div>
+            <div class="combo-emoji">${c.emoji}</div>
+            <div class="combo-label">${c.label}</div>
+          </button>`).join('');
+        choicesSection = `
+          <div class="combo-instruction">🌀 Pick the TWO emotions at play</div>
+          <div class="combo-counter" id="combo-counter"></div>
+          <div class="combo-grid" id="combo-grid">${comboHTML}</div>
+          <button class="combo-submit-btn" id="combo-submit" onclick="handleComboSubmit()" disabled>LOCK IN COMBO ▶</button>
+        `;
+      } else {
+        const LETTERS = ['A','B','C','D'];
+        const shuffled = shuffle([...s.choices]);
+        choicesSection = `<div class="choices" id="choices-grid">` +
+          shuffled.map((c, i) => `
+            <button class="choice-btn" id="choice-${c.id}" onclick="handleChoice('${c.id}','${s.correct}')">
+              <span class="choice-letter">${LETTERS[i]}</span>
+              <span class="choice-emoji">${c.emoji}</span>
+              <span class="choice-label-text">${c.label}</span>
+            </button>`).join('') + `</div>`;
+      }
+
+      const questionLabel = s.isCombo
+        ? `🌀 What TWO emotions is ${s.name} REALLY feeling?`
+        : `🔍 What is ${s.name} REALLY feeling?`;
 
       document.getElementById('scenario-card').innerHTML = `
         <div class="scenario-header">
@@ -1314,24 +2207,27 @@
         </div>
         <div class="scenario-card-body">
           <div class="scenario-text" id="scenario-text"></div>
-          <div class="question-label" id="question-label">🔍 What is ${s.name} REALLY feeling?</div>
-          <div class="choices" id="choices-grid">${choicesHTML}</div>
+          <div class="question-label" id="question-label">${questionLabel}</div>
+          ${choicesSection}
         </div>
       `;
 
-      // Start typewriter then stagger-reveal choices
       const textEl = document.getElementById('scenario-text');
       typewrite(textEl, s.text, 14, () => {
         document.getElementById('question-label').classList.add('visible');
-        staggerChoices();
+        if (s.isCombo) staggerComboBtns();
+        else staggerChoices();
       });
     }
 
     function staggerChoices() {
       const btns = document.querySelectorAll('.choice-btn');
-      btns.forEach((btn, i) => {
-        setTimeout(() => btn.classList.add('revealed'), i * 80);
-      });
+      btns.forEach((btn, i) => setTimeout(() => btn.classList.add('revealed'), i * 80));
+    }
+
+    function staggerComboBtns() {
+      const btns = document.querySelectorAll('.combo-btn');
+      btns.forEach((btn, i) => setTimeout(() => btn.classList.add('revealed'), i * 60));
     }
 
     /* ─────────────────────────────────────────────────────────────
@@ -1350,7 +2246,7 @@
     }
 
     /* ─────────────────────────────────────────────────────────────
-       HANDLE CHOICE
+       HANDLE CHOICE (single-pick worlds)
     ───────────────────────────────────────────────────────────── */
     function handleChoice(chosen, correct) {
       document.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
@@ -1387,6 +2283,11 @@
         setTimeout(() => correctBtn.classList.add('correct'), 430);
       }
 
+      incrementTotalPlayed();
+      if (!worldResults[currentWorld]) worldResults[currentWorld] = { score: 0, answers: [] };
+      worldResults[currentWorld].answers[currentIdx] = lastCorrect;
+      if (lastCorrect) worldResults[currentWorld].score = (worldResults[currentWorld].score || 0) + 1;
+
       setTimeout(() => showReveal(), 1000);
     }
 
@@ -1394,25 +2295,48 @@
        REVEAL SCREEN
     ───────────────────────────────────────────────────────────── */
     function showReveal() {
-      const s = SCENARIOS[currentIdx];
-      const nextLabel = currentIdx < SCENARIOS.length - 1 ? 'Next Scenario →' : 'See My Results →';
+      const s = currentScenarios[currentIdx];
+      const isLast = currentIdx >= currentScenarios.length - 1;
 
-      const iconBox = lastCorrect
-        ? `<div class="result-icon-box correct-icon">✅</div>`
-        : `<div class="result-icon-box wrong-icon">✗</div>`;
-      const banner = lastCorrect
-        ? `${iconBox}<div class="result-banner correct-banner">★ YOU GOT IT! ★</div>`
-        : `${iconBox}<div class="result-banner wrong-banner">✗ NOT QUITE...</div>`;
+      let iconBox, banner;
+      if (s.isCombo) {
+        // determine if half-right for this specific reveal
+        const selectedSet = new Set(comboSelected);
+        const bothCorrect = s.correct.every(c => selectedSet.has(c)) && comboSelected.length === 2;
+        const oneCorrect  = !bothCorrect && s.correct.some(c => selectedSet.has(c));
+        if (bothCorrect) {
+          iconBox = `<div class="result-icon-box correct-icon">✅</div>`;
+          banner  = `${iconBox}<div class="result-banner correct-banner">🎯 PERFECT COMBO!</div>`;
+        } else if (oneCorrect) {
+          iconBox = `<div class="result-icon-box" style="border:2px solid var(--yellow);background:rgba(255,214,10,0.1);box-shadow:0 0 16px rgba(255,214,10,0.3)">⚡</div>`;
+          banner  = `${iconBox}<div class="result-banner" style="color:var(--yellow)">⚡ HALF RIGHT...</div>`;
+        } else {
+          iconBox = `<div class="result-icon-box wrong-icon">✗</div>`;
+          banner  = `${iconBox}<div class="result-banner wrong-banner">✗ KEEP TRYING!</div>`;
+        }
+      } else {
+        iconBox = lastCorrect
+          ? `<div class="result-icon-box correct-icon">✅</div>`
+          : `<div class="result-icon-box wrong-icon">✗</div>`;
+        banner = lastCorrect
+          ? `${iconBox}<div class="result-banner correct-banner">★ YOU GOT IT! ★</div>`
+          : `${iconBox}<div class="result-banner wrong-banner">✗ NOT QUITE...</div>`;
+      }
 
       let twistSection = '';
       if (s.isTwist) {
+        const twistMsg = s.world === 3
+          ? "The whole class felt something complex at once — and the students who stayed after were showing it quietly. Public celebration and private grief can exist simultaneously."
+          : "Jordan seemed like the most confident person in the room — but underneath all that warmth and enthusiasm was someone desperately hoping to be accepted. Sometimes the biggest smiles carry the heaviest worries.";
         twistSection = `
           <div class="twist-reveal">
             <div class="twist-stars">★ ★ ★</div>
             <div class="twist-headline">🎭 The Plot Twist</div>
-            <p>Jordan seemed like the most confident person in the room — but underneath all that warmth and enthusiasm was someone desperately hoping to be accepted. Sometimes the biggest smiles carry the heaviest worries.</p>
+            <p>${twistMsg}</p>
           </div>`;
       }
+
+      const nextBtnLabel = isLast ? 'See Results →' : 'Next Scenario ▶';
 
       document.getElementById('reveal-card').innerHTML = `
         ${banner}
@@ -1421,7 +2345,7 @@
         ${twistSection}
         <div class="explanation" data-label="▸ WHY ${s.trueEmotion}?">${s.explanation}</div>
         <div class="did-you-know"><strong>💡 DID YOU KNOW?</strong>${s.didYouKnow}</div>
-        <button class="btn btn-next" onclick="nextScenario()">NEXT ▶</button>
+        <button class="btn btn-next" onclick="nextScenario()">${nextBtnLabel}</button>
       `;
 
       const card = document.getElementById('reveal-card');
@@ -1436,9 +2360,42 @@
     ───────────────────────────────────────────────────────────── */
     function nextScenario() {
       currentIdx++;
-      if (currentIdx < SCENARIOS.length) {
+      if (currentIdx < currentScenarios.length) {
         renderScenario();
         showScreen('game-screen');
+      } else {
+        finishWorld();
+      }
+    }
+
+    function finishWorld() {
+      const ws = getWorldState();
+      const wr = worldResults[currentWorld] || { score: 0, answers: [] };
+      const total = currentScenarios.length;
+      const worldScore = wr.score || 0;
+
+      // Mark world complete
+      if (currentWorld === 1) ws.w1Done = true;
+      if (currentWorld === 2) ws.w2Done = true;
+      if (currentWorld === 3) ws.w3Done = true;
+      if (worldScore === total) ws.perfectWorld = true;
+      setWorldState(ws);
+
+      // Check if a new world was just unlocked
+      const nextWorldId = currentWorld + 1;
+      const nextWorld = WORLDS.find(w => w.id === nextWorldId);
+      const wasUnlocked = isWorldUnlocked(nextWorldId);
+      // Re-save so the unlock is readable
+      setWorldState(ws);
+      const nowUnlocked = isWorldUnlocked(nextWorldId);
+
+      checkAndAwardBadges();
+
+      if (nextWorld && !wasUnlocked && nowUnlocked) {
+        // Dramatic unlock — go to results after dismissing overlay
+        setTimeout(() => {
+          showWorldUnlockOverlay(nextWorld, () => showResults());
+        }, 600);
       } else {
         showResults();
       }
@@ -1448,43 +2405,59 @@
        RESULTS SCREEN
     ───────────────────────────────────────────────────────────── */
     function showResults() {
+      const total = currentScenarios.length;
+      const pct = score / total;
       let title, message, topEmoji;
-      if (score <= 3) {
+      if (pct < 0.5) {
         topEmoji = '🌱'; title = 'Keep Practicing!';
-        message  = 'Emotions can be tricky to spot — especially when people hide them. The more you practice, the better you\'ll get.';
-      } else if (score <= 6) {
+        message  = 'Emotions can be tricky — especially when people hide them. Each attempt builds your radar.';
+      } else if (pct < 0.875) {
         topEmoji = '🔍'; title = 'Nice Work!';
-        message  = 'You\'re building your emotion radar. You can already see past the surface on some tough ones!';
+        message  = "You're building your emotion radar. You can already see past the surface on some tough ones!";
       } else {
         topEmoji = '🏆'; title = 'Emotion Expert!';
-        message  = 'You can see past the surface like a pro. That\'s a superpower when it comes to understanding people.';
+        message  = "You can see past the surface like a pro. That's a superpower when it comes to understanding people.";
       }
 
+      // Earned badges this session
+      const earnedIds = getBadges();
+      const earnedDefs = BADGE_DEFS.filter(b => earnedIds.includes(b.id));
+      const badgesSection = earnedDefs.length > 0 ? `
+        <div class="results-badges">
+          <div class="results-badges-label">🏅 BADGES EARNED</div>
+          <div class="results-badges-row">
+            ${earnedDefs.map(b => `<div class="badge-chip earned"><span class="badge-icon">${b.icon}</span>${b.name}</div>`).join('')}
+          </div>
+        </div>` : '';
+
+      const worldInfo = WORLDS[currentWorld - 1];
+      const nextWorldAvail = isWorldUnlocked(currentWorld + 1);
+
       document.getElementById('results-card').innerHTML = `
-        <div style="font-size:3rem;margin-bottom:12px">${topEmoji}</div>
+        <div style="font-size:2.6rem;margin-bottom:10px">${topEmoji}</div>
+        <div style="font-family:'Press Start 2P',monospace;font-size:0.38rem;color:var(--cyan);letter-spacing:0.1em;margin-bottom:8px">WORLD ${currentWorld} · ${worldInfo.name}</div>
         <div class="score-circle">
           <span class="score-num" id="score-count">0</span>
-          <span class="score-denom">/ 8</span>
+          <span class="score-denom">/ ${total}</span>
         </div>
         <h2>${title}</h2>
         <p class="score-message">${message}</p>
+        ${badgesSection}
         <div class="reflection-box">
           <div class="reflection-label">🪞 REFLECTION MOMENT</div>
           <p>Think of a time you felt one thing but showed something completely different on the outside. What was really going on for you?</p>
         </div>
-        <button class="btn btn-play-again" onclick="startGame()">▶ PLAY AGAIN</button>
+        <button class="btn btn-play-again" onclick="startGame(${currentWorld})">↩ RETRY WORLD ${currentWorld}</button>
+        <button class="btn btn-map" onclick="showWorldSelect()">◀ WORLD SELECT</button>
         <p class="tpt-note">FREE FROM THESTAFF LOUNGE26 · TPT</p>
       `;
 
       showScreen('results-screen');
-
-      // Animated score count-up
       setTimeout(() => animateCount('score-count', score, 100), 600);
 
-      // Sound + confetti
-      if (score >= 7) {
+      if (pct >= 0.875) {
         setTimeout(() => { playSound('fanfare'); launchConfetti(); }, 500);
-      } else if (score >= 4) {
+      } else if (pct >= 0.5) {
         setTimeout(() => playSound('fanfare'), 500);
       }
     }
