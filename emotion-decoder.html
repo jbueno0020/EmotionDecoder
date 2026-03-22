@@ -3,54 +3,52 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Emotion Decoder — TheStaffLounge26</title>
+  <title>Emotion Decoder, TheStaffLounge26</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
   <style>
     /* ── Reset & Base ─────────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --sage:       #8FAF8C;
-      --sage-light: #b8d1b5;
-      --sage-dark:  #6a8e67;
-      --cream:      #FAF3E0;
-      --cream-dark: #f0e6cc;
-      --terra:      #C4714F;
-      --terra-dark: #a85a3a;
-      --charcoal:   #3D3D3D;
-      --white:      #ffffff;
-      --correct:    #4caf50;
-      --wrong:      #e05252;
-      --gold:       #d4a843;
-      --purple:     #7b5ea7;
+      --navy:        #0F0E17;
+      --purple:      #2D1B69;
+      --violet:      #7C3AED;
+      --pink:        #F72585;
+      --cyan:        #4CC9F0;
+      --yellow:      #FFD60A;
+      --green:       #06D6A0;
+      --white:       #FFFFFE;
+      --pink-dark:   #a0006a;
+      --violet-dark: #4a1fa8;
     }
 
-    html {
+    html, body {
       height: 100%;
-      -webkit-text-size-adjust: 100%;
-      text-size-adjust: 100%;
-    }
-    body {
-      height: 100%;
-      font-family: 'Nunito', sans-serif;
-      background: var(--cream);
-      color: var(--charcoal);
+      font-family: 'Press Start 2P', monospace;
+      background: var(--navy);
+      color: var(--white);
       overflow-x: hidden;
+      /* Mobile: prevent pull-to-refresh bounce and text inflation */
       overscroll-behavior: none;
-      -webkit-font-smoothing: antialiased;
+      -webkit-text-size-adjust: 100%;
     }
 
-    /* ── Dot grid background ──────────────────────────────────────── */
+    /* ── Scanline overlay ─────────────────────────────────────────── */
     body::before {
       content: '';
       position: fixed;
       inset: 0;
-      background-image: radial-gradient(circle, rgba(143,175,140,0.18) 1px, transparent 1px);
-      background-size: 28px 28px;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(0,0,0,0.06) 3px,
+        rgba(0,0,0,0.06) 4px
+      );
       pointer-events: none;
-      z-index: 0;
+      z-index: 998;
     }
 
     /* ── Full-screen flash overlay ────────────────────────────────── */
@@ -60,17 +58,16 @@
       z-index: 500;
       pointer-events: none;
       opacity: 0;
-      border-radius: 0;
     }
     #flash-overlay.flash-correct { animation: flashCorrect 0.55s ease forwards; }
     #flash-overlay.flash-wrong   { animation: flashWrong   0.55s ease forwards; }
     @keyframes flashCorrect {
-      0%   { background: rgba(76,175,80,0.35); opacity: 1; }
-      100% { background: rgba(76,175,80,0);    opacity: 0; }
+      0%   { background: rgba(6,214,160,0.35);  opacity: 1; }
+      100% { background: rgba(6,214,160,0);     opacity: 0; }
     }
     @keyframes flashWrong {
-      0%   { background: rgba(224,82,82,0.35); opacity: 1; }
-      100% { background: rgba(224,82,82,0);    opacity: 0; }
+      0%   { background: rgba(247,37,133,0.35); opacity: 1; }
+      100% { background: rgba(247,37,133,0);    opacity: 0; }
     }
 
     /* ── Toast notification ───────────────────────────────────────── */
@@ -80,17 +77,17 @@
       left: 50%;
       transform: translateX(-50%) translateY(-90px);
       z-index: 600;
-      background: var(--charcoal);
-      color: #fff;
-      font-family: 'Nunito', sans-serif;
-      font-weight: 900;
-      font-size: 1.05rem;
-      padding: 10px 26px;
-      border-radius: 999px;
-      box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+      background: var(--purple);
+      color: var(--cyan);
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.55rem;
+      padding: 10px 20px;
+      border: 2px solid var(--cyan);
+      border-radius: 3px;
       white-space: nowrap;
       transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
       pointer-events: none;
+      letter-spacing: 0.05em;
     }
     #toast.show { transform: translateX(-50%) translateY(0); }
 
@@ -101,8 +98,8 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      /* flex-start prevents top-clipping when content overflows on iOS */
-      justify-content: flex-start;
+      justify-content: center;
+      /* Safe area padding — handles iPhone notch, Dynamic Island, iPad home bar */
       padding:
         max(20px, env(safe-area-inset-top))
         max(16px, env(safe-area-inset-right))
@@ -111,24 +108,18 @@
       z-index: 1;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.4s ease, transform 0.4s ease;
-      transform: translateY(14px);
+      transition: opacity 0.3s ease;
       overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
+      -webkit-overflow-scrolling: touch; /* smooth momentum scroll on older iOS */
     }
-    /* Screens whose content reliably fits — keep vertically centered */
-    #home-screen    { justify-content: center; }
-    #results-screen { justify-content: center; }
-    /* Scrollable screens get a gap between their stacked children */
-    #game-screen, #reveal-screen { gap: 14px; }
+    /* Game and reveal may have more content than fits — start from top so overflow is scrollable */
+    #game-screen, #reveal-screen { justify-content: flex-start; gap: 0; }
     .screen.active {
       opacity: 1;
       pointer-events: all;
-      transform: translateY(0);
     }
     .screen.exit {
       opacity: 0;
-      transform: translateY(-14px);
       pointer-events: none;
     }
 
@@ -138,254 +129,254 @@
       bottom: max(10px, env(safe-area-inset-bottom));
       left: 0; right: 0;
       text-align: center;
-      font-size: 0.68rem;
-      letter-spacing: 0.09em;
-      color: rgba(61,61,61,0.32);
-      font-weight: 700;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.38rem;
+      color: rgba(76,201,240,0.3);
       z-index: 100;
       user-select: none;
+      letter-spacing: 0.1em;
     }
-
-    /* ── Typography ───────────────────────────────────────────────── */
-    h1, h2, h3 { font-family: 'Playfair Display', serif; line-height: 1.2; }
 
     /* ══════════════════════════════════════════════════════════════ */
     /*  HOME SCREEN                                                   */
     /* ══════════════════════════════════════════════════════════════ */
-    #home-screen { background: var(--cream); overflow: hidden; }
+    #home-screen { background: var(--navy); overflow: hidden; }
 
-    /* Floating emoji background */
-    .float-bg {
+    /* Star pixel dots, generated by JS */
+    .star-field { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+    .star-dot {
       position: absolute;
-      inset: 0;
-      pointer-events: none;
-      overflow: hidden;
-      z-index: 0;
+      width: 3px; height: 3px;
+      background: white;
+      border-radius: 0;
+      opacity: 0.55;
     }
-    .float-bg span {
+
+    /* Floating pixel face boxes */
+    .pixel-faces { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+    .pixel-face {
       position: absolute;
-      font-size: 2.2rem;
-      opacity: 0;
-      animation: floatUp linear infinite;
-      user-select: none;
+      width: 44px; height: 44px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      animation: floatBox 2.5s ease-in-out infinite;
     }
-    .float-bg span:nth-child(1)  { left: 5%;  animation-duration: 9s;  animation-delay: 0s;    font-size: 1.8rem; }
-    .float-bg span:nth-child(2)  { left: 15%; animation-duration: 13s; animation-delay: 1.5s;  font-size: 2.4rem; }
-    .float-bg span:nth-child(3)  { left: 28%; animation-duration: 10s; animation-delay: 3s;    font-size: 1.6rem; }
-    .float-bg span:nth-child(4)  { left: 42%; animation-duration: 14s; animation-delay: 0.8s;  font-size: 2rem;   }
-    .float-bg span:nth-child(5)  { left: 57%; animation-duration: 11s; animation-delay: 4s;    font-size: 1.7rem; }
-    .float-bg span:nth-child(6)  { left: 70%; animation-duration: 8s;  animation-delay: 2.2s;  font-size: 2.2rem; }
-    .float-bg span:nth-child(7)  { left: 82%; animation-duration: 12s; animation-delay: 0.3s;  font-size: 1.9rem; }
-    .float-bg span:nth-child(8)  { left: 92%; animation-duration: 15s; animation-delay: 5s;    font-size: 2.5rem; }
-    .float-bg span:nth-child(9)  { left: 22%; animation-duration: 9.5s; animation-delay: 6s;   font-size: 1.5rem; }
-    .float-bg span:nth-child(10) { left: 63%; animation-duration: 11s; animation-delay: 2.7s;  font-size: 2rem;   }
-    @keyframes floatUp {
-      0%   { transform: translateY(105vh) rotate(-10deg); opacity: 0; }
-      8%   { opacity: 0.13; }
-      90%  { opacity: 0.13; }
-      100% { transform: translateY(-10vh) rotate(25deg);  opacity: 0; }
+    .pixel-face:nth-child(1) { background: rgba(247,37,133,0.2);  border: 2px solid rgba(247,37,133,0.5); top: 12%; left: 8%;   animation-delay: 0s;   }
+    .pixel-face:nth-child(2) { background: rgba(76,201,240,0.2);  border: 2px solid rgba(76,201,240,0.5); top: 18%; right: 10%; animation-delay: 0.6s; }
+    .pixel-face:nth-child(3) { background: rgba(255,214,10,0.2);  border: 2px solid rgba(255,214,10,0.5); bottom: 24%; left: 11%; animation-delay: 1.2s; }
+    .pixel-face:nth-child(4) { background: rgba(6,214,160,0.2);   border: 2px solid rgba(6,214,160,0.5);  bottom: 14%; right: 8%; animation-delay: 1.8s; }
+    @keyframes floatBox {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-6px); }
+    }
+
+    /* Blinking brand tag */
+    .brand-tag {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.44rem;
+      color: var(--cyan);
+      letter-spacing: 0.12em;
+      margin-bottom: 24px;
+      animation: blink 2s step-end infinite;
+      text-align: center;
+      position: relative;
+      z-index: 1;
     }
 
     .home-card {
-      background: var(--white);
-      border-radius: 24px;
-      box-shadow: 0 10px 50px rgba(61,61,61,0.15);
-      padding: 44px 36px 40px;
+      background: var(--purple);
+      border: 2px solid var(--violet);
+      border-radius: 4px;
+      padding: 36px 30px 32px;
       max-width: 560px;
       width: 100%;
       text-align: center;
       position: relative;
-      overflow: hidden;
       z-index: 1;
-      animation: cardEntrance 0.7s cubic-bezier(0.22,1,0.36,1) both;
-    }
-    @keyframes cardEntrance {
-      from { opacity: 0; transform: scale(0.94) translateY(20px); }
-      to   { opacity: 1; transform: scale(1)    translateY(0); }
-    }
-    .home-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 6px;
-      background: linear-gradient(90deg, var(--sage), var(--terra), var(--gold));
-      background-size: 200% 100%;
-      animation: shimmer 3s linear infinite;
-    }
-    @keyframes shimmer {
-      0%   { background-position: 0% 0%; }
-      100% { background-position: 200% 0%; }
+      box-shadow: 0 0 40px rgba(124,58,237,0.4), 0 0 80px rgba(124,58,237,0.15);
     }
 
-    .pixel-icon {
-      font-size: 3.6rem;
+    /* Arcade title */
+    .arcade-title {
+      margin-bottom: 16px;
+      line-height: 1.6;
+    }
+    .arcade-title .line1 {
       display: block;
-      margin-bottom: 10px;
-      animation: bob 2.4s ease-in-out infinite;
+      font-family: 'Press Start 2P', monospace;
+      font-size: clamp(0.9rem, 4vw, 1.2rem);
+      color: var(--white);
+      text-shadow: 3px 3px 0 var(--pink);
+      margin-bottom: 6px;
     }
-    @keyframes bob {
-      0%, 100% { transform: translateY(0) rotate(-3deg); }
-      50%       { transform: translateY(-8px) rotate(3deg); }
+    .arcade-title .line2 {
+      display: block;
+      font-family: 'Press Start 2P', monospace;
+      font-size: clamp(0.9rem, 4vw, 1.2rem);
+      color: var(--yellow);
+      text-shadow: 3px 3px 0 var(--pink);
     }
-
-    /* Animated title letters */
-    .home-card h1 {
-      font-size: 2.7rem;
-      color: var(--charcoal);
-      margin-bottom: 8px;
-      overflow: hidden;
-    }
-    .home-card h1 .word { display: inline-block; overflow: hidden; }
-    .home-card h1 .letter {
-      display: inline-block;
-      animation: letterIn 0.5s cubic-bezier(0.22,1,0.36,1) both;
-    }
-    @keyframes letterIn {
-      from { opacity: 0; transform: translateY(100%) rotate(8deg); }
-      to   { opacity: 1; transform: translateY(0) rotate(0); }
-    }
-    .home-card h1 .terra { color: var(--terra); }
 
     .subtitle {
-      font-size: 1.05rem;
-      color: var(--sage-dark);
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.95rem;
       font-weight: 700;
+      color: rgba(255,255,254,0.65);
       margin-bottom: 20px;
+      line-height: 1.5;
     }
 
     .instructions {
-      background: var(--cream);
-      border-radius: 14px;
-      padding: 16px 20px;
-      font-size: 0.95rem;
+      background: rgba(15,14,23,0.55);
+      border: 1px solid rgba(76,201,240,0.18);
+      border-radius: 4px;
+      padding: 14px 18px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.92rem;
+      font-weight: 700;
       line-height: 1.65;
-      color: var(--charcoal);
-      margin-bottom: 22px;
+      color: rgba(255,255,254,0.8);
+      margin-bottom: 20px;
       text-align: left;
     }
 
     .casel-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      background: var(--sage);
-      color: var(--white);
-      font-size: 0.78rem;
-      font-weight: 800;
+      display: inline-block;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.42rem;
+      color: var(--cyan);
+      background: rgba(76,201,240,0.08);
+      border: 1px solid rgba(76,201,240,0.3);
+      padding: 7px 14px;
+      border-radius: 2px;
       letter-spacing: 0.06em;
-      text-transform: uppercase;
-      padding: 7px 16px;
-      border-radius: 999px;
-      margin-bottom: 26px;
+      margin-bottom: 24px;
+      line-height: 1.8;
     }
 
     /* ── Buttons ──────────────────────────────────────────────────── */
     .btn {
       display: inline-block;
-      font-family: 'Nunito', sans-serif;
-      font-weight: 800;
-      font-size: 1rem;
+      font-family: 'Press Start 2P', monospace;
       border: none;
-      border-radius: 12px;
-      padding: 14px 32px;
       cursor: pointer;
-      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
-      letter-spacing: 0.03em;
-      /* Touch-device essentials */
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+      letter-spacing: 0.04em;
+      line-height: 1.5;
+      /* Touch essentials: removes 300ms delay and gray flash on iOS/Android */
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
       user-select: none;
       -webkit-user-select: none;
-      min-height: 48px;
+      min-height: 44px;
     }
-    @media (hover: hover) {
-      .btn:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.18); }
-    }
-    .btn:active { transform: scale(0.97); box-shadow: none; }
+    .btn:active { transform: translateY(3px) !important; box-shadow: none !important; }
 
     .btn-primary {
-      background: var(--terra);
+      font-size: 0.62rem;
+      background: var(--pink);
       color: var(--white);
-      font-size: 1.15rem;
-      padding: 17px 44px;
-      border-radius: 14px;
-      position: relative;
-      overflow: hidden;
+      padding: 16px 36px;
+      border: 3px solid var(--pink-dark);
+      border-radius: 4px;
+      box-shadow: 0 4px 0 var(--pink-dark);
+      animation: btnPulse 2s ease-in-out infinite;
     }
-    .btn-primary::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(120deg, transparent 40%, rgba(255,255,255,0.18) 50%, transparent 60%);
-      background-size: 200% 100%;
-      animation: btnShine 2.5s ease infinite;
+    @media (hover: hover) {
+      .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 0 var(--pink-dark), 0 0 20px rgba(247,37,133,0.4); }
     }
-    @keyframes btnShine {
-      0%   { background-position: 200% 0; }
-      50%  { background-position: -100% 0; }
-      100% { background-position: 200% 0; }
+    @keyframes btnPulse {
+      0%, 100% { box-shadow: 0 4px 0 var(--pink-dark), 0 0 0   0   rgba(247,37,133,0.4); }
+      50%       { box-shadow: 0 4px 0 var(--pink-dark), 0 0 20px 6px rgba(247,37,133,0.25); }
     }
-    .btn-primary:hover { background: var(--terra-dark); }
 
     .btn-next {
-      background: var(--sage);
+      font-size: 0.56rem;
+      background: var(--violet);
       color: var(--white);
+      padding: 14px 28px;
       margin-top: 18px;
       width: 100%;
+      border: 3px solid var(--violet-dark);
+      border-radius: 4px;
+      box-shadow: 0 4px 0 var(--violet-dark);
     }
-    .btn-next:hover { background: var(--sage-dark); }
+    @media (hover: hover) {
+      .btn-next:hover { transform: translateY(-2px); box-shadow: 0 6px 0 var(--violet-dark); }
+    }
 
     .btn-play-again {
-      background: var(--terra);
+      font-size: 0.56rem;
+      background: var(--pink);
       color: var(--white);
-      font-size: 1.05rem;
+      padding: 14px 28px;
       margin-top: 10px;
       width: 100%;
+      border: 3px solid var(--pink-dark);
+      border-radius: 4px;
+      box-shadow: 0 4px 0 var(--pink-dark);
     }
-    .btn-play-again:hover { background: var(--terra-dark); }
+    @media (hover: hover) {
+      .btn-play-again:hover { transform: translateY(-2px); box-shadow: 0 6px 0 var(--pink-dark); }
+    }
 
     /* ══════════════════════════════════════════════════════════════ */
     /*  GAME SCREEN                                                   */
     /* ══════════════════════════════════════════════════════════════ */
-    #game-screen { background: var(--cream); }
+    #game-screen { background: var(--navy); }
 
-    /* Progress area */
+    /* HUD bar */
     .progress-wrap {
       width: 100%;
       max-width: 600px;
-      margin-bottom: 16px;
+      margin-bottom: 0;
+      background: var(--purple);
+      border: 2px solid var(--violet);
+      border-bottom: 3px solid var(--pink);
+      border-radius: 4px 4px 0 0;
+      padding: 10px 16px 12px;
     }
     .progress-top {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 7px;
+      margin-bottom: 10px;
+      gap: 8px;
+      flex-wrap: wrap;
     }
-    .progress-text {
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--sage-dark);
+    .hud-logo {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.44rem;
+      color: var(--cyan);
+      letter-spacing: 0.08em;
     }
     .score-live-wrap {
       display: flex;
       align-items: center;
       gap: 8px;
     }
+    .progress-text {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.5rem;
+      color: var(--yellow);
+      letter-spacing: 0.05em;
+    }
     .score-live {
-      font-size: 0.85rem;
-      font-weight: 900;
-      color: var(--terra);
-      background: rgba(196,113,79,0.1);
-      padding: 3px 10px;
-      border-radius: 999px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.5rem;
+      color: var(--yellow);
+      letter-spacing: 0.05em;
     }
     .streak-badge {
-      font-size: 0.8rem;
-      font-weight: 900;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.44rem;
       background: linear-gradient(135deg, #ff6b35, #f7c59f);
       color: white;
-      padding: 3px 10px;
-      border-radius: 999px;
+      padding: 4px 8px;
+      border-radius: 3px;
       display: none;
       animation: streakPop 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
     }
@@ -395,160 +386,170 @@
       to   { transform: scale(1); }
     }
     .progress-track {
-      background: var(--cream-dark);
-      border-radius: 999px;
-      height: 10px;
+      background: var(--navy);
+      border: 2px solid rgba(255,255,255,0.18);
+      border-radius: 2px;
+      height: 12px;
       overflow: hidden;
-      position: relative;
     }
     .progress-fill {
       height: 100%;
-      background: linear-gradient(90deg, var(--sage), var(--terra));
-      border-radius: 999px;
-      transition: width 0.55s cubic-bezier(0.34,1.56,0.64,1);
-      position: relative;
+      background: var(--yellow);
+      border-radius: 1px;
+      transition: width 0.5s ease;
     }
-    .progress-fill::after {
-      content: '';
-      position: absolute;
-      right: 0;
-      top: 0; bottom: 0;
-      width: 30px;
-      background: rgba(255,255,255,0.35);
-      border-radius: 999px;
-      animation: progressGlow 1.2s ease-in-out infinite;
+
+    /* +1 score popup */
+    .score-popup {
+      position: fixed;
+      z-index: 450;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.65rem;
+      color: var(--green);
+      pointer-events: none;
+      animation: scoreFloat 0.85s ease-out forwards;
+      transform: translateX(-50%);
+      text-shadow: 0 0 10px rgba(6,214,160,0.7);
     }
-    @keyframes progressGlow {
-      0%,100% { opacity: 0; }
-      50%     { opacity: 1; }
+    @keyframes scoreFloat {
+      0%   { opacity: 1; transform: translateX(-50%) translateY(0)    scale(1.2); }
+      30%  {             transform: translateX(-50%) translateY(-20px) scale(1);   }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-52px) scale(0.9); }
     }
 
     /* Scenario card */
     .scenario-card {
-      background: var(--white);
-      border-radius: 20px;
-      box-shadow: 0 6px 32px rgba(61,61,61,0.11);
-      padding: 28px 26px 26px;
+      background: var(--purple);
+      border: 2px solid var(--violet);
+      border-top: none;
+      border-left: 4px solid var(--cyan);
+      border-radius: 0 0 4px 4px;
+      padding: 0;
       max-width: 600px;
       width: 100%;
+      overflow: hidden;
+      position: relative;
     }
+    .scenario-card-body { padding: 18px 20px 22px; }
 
     .scenario-header {
       display: flex;
       align-items: center;
       gap: 10px;
-      margin-bottom: 14px;
       flex-wrap: wrap;
+      background: rgba(15,14,23,0.45);
+      border-bottom: 1px solid rgba(76,201,240,0.18);
+      padding: 12px 20px;
     }
     .scenario-num {
-      background: var(--terra);
-      color: var(--white);
-      font-size: 0.72rem;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 4px 12px;
-      border-radius: 999px;
+      font-family: 'Press Start 2P', monospace;
+      background: rgba(76,201,240,0.1);
+      border: 1px solid rgba(76,201,240,0.3);
+      color: var(--cyan);
+      font-size: 0.42rem;
+      letter-spacing: 0.1em;
+      padding: 4px 8px;
+      border-radius: 2px;
     }
     .scenario-name {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.12rem;
-      color: var(--charcoal);
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.54rem;
+      color: var(--yellow);
+      letter-spacing: 0.06em;
+      flex: 1;
     }
     .twist-badge {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      background: linear-gradient(135deg, var(--purple), var(--terra));
+      gap: 5px;
+      background: linear-gradient(135deg, #7C3AED, #F72585);
       color: white;
-      font-size: 0.72rem;
-      font-weight: 800;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      padding: 4px 12px;
-      border-radius: 999px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.36rem;
+      letter-spacing: 0.06em;
+      padding: 4px 8px;
+      border-radius: 2px;
       animation: glow 1.8s ease-in-out infinite;
     }
     @keyframes glow {
-      0%,100% { box-shadow: 0 0 6px  rgba(123,94,167,0.4); }
-      50%     { box-shadow: 0 0 20px rgba(123,94,167,0.8); }
+      0%,100% { box-shadow: 0 0 6px  rgba(247,37,133,0.4); }
+      50%     { box-shadow: 0 0 20px rgba(247,37,133,0.8); }
     }
 
     .scenario-text {
-      font-size: 1rem;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.87rem;
+      font-weight: 700;
       line-height: 1.72;
-      color: var(--charcoal);
-      margin-bottom: 20px;
-      background: var(--cream);
-      border-radius: 12px;
+      color: rgba(255,255,254,0.85);
+      margin-bottom: 16px;
+      background: rgba(15,14,23,0.4);
+      border-radius: 3px;
       padding: 14px 16px;
-      border-left: 4px solid var(--sage);
+      border-left: 3px solid var(--cyan);
       min-height: 80px;
+      position: relative;
+      overflow: hidden;
     }
-    /* Blinking cursor during typewriter */
+    .scenario-text.typing::before {
+      content: '';
+      position: absolute;
+      left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent 0%, var(--cyan) 50%, transparent 100%);
+      top: 0;
+      animation: scanLine 1.4s linear forwards;
+      z-index: 1;
+      opacity: 0.8;
+    }
+    @keyframes scanLine {
+      0%   { top: 0%;   opacity: 0.9; }
+      90%  { top: 100%; opacity: 0.5; }
+      100% { top: 100%; opacity: 0;   }
+    }
     .scenario-text.typing::after {
-      content: '|';
-      color: var(--terra);
-      animation: blink 0.7s step-end infinite;
+      content: '_';
+      color: var(--cyan);
+      animation: blink 0.6s step-end infinite;
     }
     @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
-    /* "Tap to skip" hint that only shows on touch devices during typewrite */
-    .scenario-text.typing {
-      cursor: pointer;
-      position: relative;
-    }
-    .skip-hint {
-      display: none;
-      font-size: 0.7rem;
-      font-weight: 700;
-      color: rgba(61,61,61,0.38);
-      letter-spacing: 0.05em;
-      text-align: right;
-      margin-top: 4px;
-      margin-bottom: -8px;
-    }
-    @media (hover: none) {
-      /* Only show skip hint on touch devices */
-      .skip-hint { display: block; }
-    }
 
     .question-label {
-      font-size: 0.83rem;
-      font-weight: 800;
-      color: var(--sage-dark);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      margin-bottom: 12px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.52rem;
+      color: var(--white);
+      letter-spacing: 0.04em;
+      line-height: 1.8;
+      margin-bottom: 14px;
       opacity: 0;
       transition: opacity 0.4s ease;
     }
     .question-label.visible { opacity: 1; }
 
-    /* Choice buttons */
+    /* Choice buttons, 2×2 centred column layout */
     .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     @media (max-width: 420px) { .choices { grid-template-columns: 1fr; } }
 
     .choice-btn {
-      background: var(--cream);
-      border: 2.5px solid transparent;
-      border-radius: 12px;
-      padding: 13px 14px;
-      font-family: 'Nunito', sans-serif;
-      font-size: 0.92rem;
-      font-weight: 700;
-      color: var(--charcoal);
+      background: var(--purple);
+      border: 2px solid var(--violet);
+      border-radius: 8px;
+      padding: 14px 10px 12px;
+      font-family: 'Press Start 2P', monospace;
       cursor: pointer;
-      transition: border-color 0.18s, background 0.18s, transform 0.15s, box-shadow 0.15s;
-      text-align: left;
+      transition: border-color 0.15s, background 0.15s, transform 0.15s;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 9px;
+      gap: 7px;
       opacity: 0;
       transform: translateY(14px);
       position: relative;
       overflow: hidden;
+      text-align: center;
+      min-height: 90px;
+      justify-content: center;
       /* Touch essentials */
-      min-height: 56px;
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
       user-select: none;
@@ -557,40 +558,70 @@
     .choice-btn.revealed {
       opacity: 1;
       transform: translateY(0);
-      transition: border-color 0.18s, background 0.18s, transform 0.3s cubic-bezier(0.34,1.2,0.64,1), box-shadow 0.15s, opacity 0.3s ease;
+      transition: border-color 0.15s, background 0.15s,
+                  transform 0.3s cubic-bezier(0.34,1.2,0.64,1), opacity 0.3s ease;
     }
-    /* Only apply hover on real pointer devices (not touch) */
     @media (hover: hover) {
       .choice-btn:hover:not(:disabled) {
-        border-color: var(--sage);
-        background: #edf5ec;
-        transform: translateY(-3px);
-        box-shadow: 0 6px 18px rgba(143,175,140,0.3);
+        border-color: var(--pink);
+        background: rgba(247,37,133,0.08);
+        transform: scale(1.02);
       }
     }
-    /* Touch active feedback — works on all devices */
     .choice-btn:active:not(:disabled) {
+      border-color: var(--pink);
+      background: rgba(247,37,133,0.08);
       transform: scale(0.96);
-      border-color: var(--sage);
-      background: #edf5ec;
     }
     .choice-btn:disabled { cursor: default; }
-    .choice-emoji { font-size: 1.35rem; flex-shrink: 0; }
+
+    /* Letter badge, top-left */
+    .choice-letter {
+      position: absolute;
+      top: 6px; left: 7px;
+      width: 18px; height: 18px;
+      border-radius: 3px;
+      background: var(--navy);
+      color: rgba(255,255,254,0.65);
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.42rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, color 0.15s;
+    }
+    .choice-btn:hover:not(:disabled) .choice-letter { background: var(--pink); color: white; }
+
+    .choice-emoji { font-size: 1.5rem; flex-shrink: 0; display: block; }
+
+    .choice-label-text {
+      font-size: 0.42rem;
+      color: rgba(255,255,254,0.8);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      line-height: 1.5;
+    }
 
     .choice-btn.correct {
-      background: #e6f4e6;
-      border-color: var(--correct);
+      background: rgba(6,214,160,0.15);
+      border-color: var(--green);
       animation: correctPulse 0.55s ease;
     }
+    .choice-btn.correct .choice-label-text { color: var(--green); }
+    .choice-btn.correct .choice-letter { background: var(--green); color: var(--navy); }
+
     .choice-btn.wrong {
-      background: #fde8e8;
-      border-color: var(--wrong);
-      animation: wrongShake 0.45s ease;
+      background: rgba(247,37,133,0.15);
+      border-color: var(--pink);
+      animation: wrongShake 0.4s ease;
     }
+    .choice-btn.wrong .choice-label-text { color: var(--pink); }
+    .choice-btn.wrong .choice-letter { background: var(--pink); color: white; }
+
     @keyframes correctPulse {
-      0%   { background: #a8e6a8; transform: scale(1.05); }
+      0%   { background: rgba(6,214,160,0.35); transform: scale(1.05); }
       60%  { transform: scale(0.98); }
-      100% { background: #e6f4e6; transform: scale(1); }
+      100% { background: rgba(6,214,160,0.15); transform: scale(1); }
     }
     @keyframes wrongShake {
       0%,100% { transform: translateX(0); }
@@ -604,7 +635,7 @@
     .particle {
       position: fixed;
       pointer-events: none;
-      font-size: 1.6rem;
+      font-size: 1.4rem;
       z-index: 400;
       animation: particleBurst 0.9s ease-out forwards;
     }
@@ -616,51 +647,73 @@
     /* ══════════════════════════════════════════════════════════════ */
     /*  REVEAL SCREEN                                                 */
     /* ══════════════════════════════════════════════════════════════ */
-    #reveal-screen { background: var(--cream); }
+    #reveal-screen { background: var(--navy); }
 
     .reveal-card {
-      background: var(--white);
-      border-radius: 20px;
-      box-shadow: 0 6px 32px rgba(61,61,61,0.11);
-      padding: 30px 26px;
+      background: var(--purple);
+      border: 2px solid var(--violet);
+      border-radius: 4px;
+      padding: 28px 24px;
       max-width: 600px;
       width: 100%;
       text-align: center;
-      border: 2.5px solid transparent;
       transition: border-color 0.4s ease;
     }
-    .reveal-card.correct-card { border-color: var(--correct); box-shadow: 0 6px 40px rgba(76,175,80,0.18); }
-    .reveal-card.wrong-card   { border-color: var(--wrong);   box-shadow: 0 6px 40px rgba(224,82,82,0.12); }
+    .reveal-card.correct-card { border-color: var(--green); box-shadow: 0 0 28px rgba(6,214,160,0.2); }
+    .reveal-card.wrong-card   { border-color: var(--pink);  box-shadow: 0 0 28px rgba(247,37,133,0.15); }
+
+    /* Big icon box */
+    .result-icon-box {
+      width: 56px; height: 56px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      margin: 0 auto 14px;
+      animation: bannerDrop 0.5s cubic-bezier(0.34,1.4,0.64,1) both;
+    }
+    .result-icon-box.correct-icon {
+      border: 2px solid var(--green);
+      box-shadow: 0 0 16px rgba(6,214,160,0.5);
+      background: rgba(6,214,160,0.1);
+    }
+    .result-icon-box.wrong-icon {
+      border: 2px solid var(--pink);
+      box-shadow: 0 0 16px rgba(247,37,133,0.4);
+      background: rgba(247,37,133,0.1);
+    }
 
     .result-banner {
-      border-radius: 12px;
-      padding: 16px 20px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.58rem;
       margin-bottom: 18px;
-      font-size: 1.3rem;
-      font-family: 'Playfair Display', serif;
+      letter-spacing: 0.05em;
+      line-height: 1.7;
       animation: bannerDrop 0.5s cubic-bezier(0.34,1.4,0.64,1) both;
     }
     @keyframes bannerDrop {
       from { opacity: 0; transform: translateY(-20px) scale(0.95); }
       to   { opacity: 1; transform: translateY(0)     scale(1); }
     }
-    .correct-banner { background: #e6f4e6; color: #2e7d32; border: 2px solid var(--correct); }
-    .wrong-banner   { background: #fde8e8; color: #c62828; border: 2px solid var(--wrong);   }
+    .correct-banner { color: var(--green); }
+    .wrong-banner   { color: var(--pink); }
 
     .true-emotion-label {
-      font-size: 0.75rem;
-      font-weight: 800;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.44rem;
+      color: var(--cyan);
       letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--sage-dark);
-      margin-bottom: 5px;
+      margin-bottom: 6px;
     }
     .true-emotion {
-      font-family: 'Playfair Display', serif;
-      font-size: 2.1rem;
-      color: var(--terra);
-      margin-bottom: 18px;
-      display: inline-block;
+      font-family: 'Press Start 2P', monospace;
+      font-size: clamp(0.7rem, 3vw, 0.9rem);
+      color: var(--yellow);
+      text-shadow: 2px 2px 0 var(--pink);
+      margin-bottom: 20px;
+      display: block;
+      line-height: 1.5;
       animation: stampIn 0.55s cubic-bezier(0.22,0.61,0.36,1) both;
       animation-delay: 0.15s;
     }
@@ -671,27 +724,43 @@
       100% { transform: scale(1)    rotate(0);     opacity: 1; }
     }
 
+    /* Explanation card, cyan bordered */
     .explanation {
-      font-size: 0.97rem;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 700;
       line-height: 1.7;
-      color: var(--charcoal);
-      background: var(--cream);
-      border-radius: 12px;
-      padding: 14px 18px;
-      margin-bottom: 16px;
+      color: rgba(255,255,254,0.9);
+      background: var(--navy);
+      border: 2px solid var(--cyan);
+      border-radius: 4px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
       text-align: left;
     }
+    .explanation::before {
+      content: attr(data-label);
+      display: block;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.42rem;
+      color: var(--cyan);
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
 
+    /* Did You Know, yellow bordered */
     .did-you-know {
-      background: linear-gradient(135deg, var(--sage-dark), var(--sage));
-      color: var(--white);
-      border-radius: 12px;
-      padding: 13px 18px;
-      font-size: 0.88rem;
-      font-weight: 600;
+      background: var(--navy);
+      border: 2px solid var(--yellow);
+      border-radius: 4px;
+      padding: 13px 16px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.86rem;
+      font-weight: 700;
       line-height: 1.55;
       margin-bottom: 16px;
       text-align: left;
+      color: rgba(255,255,254,0.88);
       animation: slideUp 0.5s ease both;
       animation-delay: 0.3s;
     }
@@ -701,20 +770,20 @@
     }
     .did-you-know strong {
       display: block;
-      font-size: 0.73rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      margin-bottom: 5px;
-      opacity: 0.82;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.42rem;
+      color: var(--yellow);
+      letter-spacing: 0.07em;
+      margin-bottom: 7px;
     }
 
     /* Twist reveal */
     .twist-reveal {
-      background: linear-gradient(135deg, #2d1b4e, #3d2a1a);
-      color: white;
-      border-radius: 16px;
-      padding: 22px;
-      margin-bottom: 18px;
+      background: linear-gradient(135deg, #1a0a4e, #3d1060);
+      border: 2px solid var(--violet);
+      border-radius: 4px;
+      padding: 20px;
+      margin-bottom: 16px;
       position: relative;
       overflow: hidden;
       animation: twistEntrance 0.7s cubic-bezier(0.22,1,0.36,1) both;
@@ -724,21 +793,28 @@
       from { opacity: 0; transform: scale(0.9) rotate(-2deg); }
       to   { opacity: 1; transform: scale(1)   rotate(0); }
     }
-    .twist-reveal::before {
-      content: '✨';
-      position: absolute;
-      font-size: 6rem;
-      opacity: 0.07;
-      top: -12px; right: -8px;
-    }
     .twist-headline {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.15rem;
-      margin-bottom: 8px;
-      color: #f8d89a;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.6rem;
+      margin-bottom: 10px;
+      color: var(--yellow);
+      letter-spacing: 0.05em;
+      line-height: 1.6;
     }
-    .twist-reveal p { font-size: 0.92rem; line-height: 1.65; opacity: 0.9; }
-    .twist-stars { font-size: 1.1rem; letter-spacing: 3px; margin-bottom: 10px; animation: starSpin 1s ease both; }
+    .twist-reveal p {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.88rem;
+      line-height: 1.65;
+      color: rgba(255,255,254,0.9);
+    }
+    .twist-stars {
+      font-size: 1rem;
+      letter-spacing: 3px;
+      margin-bottom: 10px;
+      color: var(--yellow);
+      animation: starSpin 1s ease both;
+    }
     @keyframes starSpin {
       from { transform: scale(0) rotate(-180deg); opacity: 0; }
       to   { transform: scale(1) rotate(0);       opacity: 1; }
@@ -747,148 +823,473 @@
     /* ══════════════════════════════════════════════════════════════ */
     /*  RESULTS SCREEN                                                */
     /* ══════════════════════════════════════════════════════════════ */
-    #results-screen { background: var(--cream); }
+    #results-screen { background: var(--navy); }
 
     .results-card {
-      background: var(--white);
-      border-radius: 24px;
-      box-shadow: 0 8px 40px rgba(61,61,61,0.13);
-      padding: 40px 32px 36px;
+      background: var(--purple);
+      border: 2px solid var(--violet);
+      border-radius: 4px;
+      padding: 36px 28px 32px;
       max-width: 580px;
       width: 100%;
       text-align: center;
       position: relative;
       overflow: hidden;
-    }
-    .results-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 6px;
-      background: linear-gradient(90deg, var(--gold), var(--terra), var(--sage), var(--gold));
-      background-size: 300% 100%;
-      animation: shimmer 2.5s linear infinite;
+      box-shadow: 0 0 40px rgba(124,58,237,0.3);
     }
 
+    /* Large arcade score */
     .score-circle {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--sage), var(--sage-dark));
+      margin: 0 auto 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      margin: 0 auto 20px;
-      box-shadow: 0 6px 28px rgba(143,175,140,0.45);
-      animation: circlePop 0.6s cubic-bezier(0.34,1.56,0.64,1) both;
-      animation-delay: 0.2s;
-    }
-    @keyframes circlePop {
-      from { transform: scale(0); opacity: 0; }
-      to   { transform: scale(1); opacity: 1; }
+      gap: 6px;
     }
     .score-num {
-      font-family: 'Playfair Display', serif;
-      font-size: 2.6rem;
-      color: white;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 2rem;
+      color: var(--yellow);
+      text-shadow: 3px 3px 0 var(--pink);
       line-height: 1;
     }
-    .score-denom { font-size: 0.78rem; color: rgba(255,255,255,0.8); font-weight: 700; }
+    .score-denom {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.5rem;
+      color: rgba(255,255,254,0.45);
+      letter-spacing: 0.06em;
+    }
 
-    .results-card h2 { font-size: 1.85rem; color: var(--charcoal); margin-bottom: 10px; }
+    .results-card h2 {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.7rem;
+      color: var(--white);
+      margin-bottom: 12px;
+      letter-spacing: 0.05em;
+      line-height: 1.6;
+    }
     .score-message {
-      font-size: 1rem;
-      color: var(--sage-dark);
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.95rem;
       font-weight: 700;
+      color: rgba(255,255,254,0.72);
       margin-bottom: 22px;
       line-height: 1.55;
     }
 
+    /* Reflection box, cyan card */
     .reflection-box {
-      background: var(--cream);
-      border-radius: 14px;
-      padding: 18px 20px;
-      margin-bottom: 24px;
+      background: var(--navy);
+      border: 2px solid var(--cyan);
+      border-radius: 4px;
+      padding: 16px 18px;
+      margin-bottom: 22px;
       text-align: left;
-      border-left: 4px solid var(--terra);
       animation: slideUp 0.5s ease both;
       animation-delay: 0.5s;
     }
     .reflection-label {
-      font-size: 0.73rem;
-      font-weight: 800;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--terra);
-      margin-bottom: 8px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.42rem;
+      color: var(--cyan);
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+      line-height: 1.7;
     }
-    .reflection-box p { font-size: 0.97rem; line-height: 1.65; font-style: italic; }
+    .reflection-box p {
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.92rem;
+      font-weight: 700;
+      line-height: 1.65;
+      color: rgba(255,255,254,0.8);
+    }
 
-    .tpt-note { font-size: 0.8rem; color: rgba(61,61,61,0.45); margin-top: 18px; font-weight: 600; }
+    .tpt-note {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.38rem;
+      color: var(--cyan);
+      margin-top: 18px;
+      letter-spacing: 0.07em;
+      line-height: 1.8;
+    }
 
     /* Full-page confetti */
     .confetti-piece {
       position: fixed;
-      width: 9px;
-      height: 9px;
+      width: 8px; height: 8px;
       top: -12px;
-      border-radius: 2px;
+      border-radius: 1px;
       z-index: 450;
       pointer-events: none;
       animation: confettiFall linear forwards;
     }
     @keyframes confettiFall {
-      0%   { transform: translateY(0)    rotate(0deg)   scaleX(1); opacity: 1; }
+      0%   { transform: translateY(0)    rotate(0deg)   scaleX(1);  opacity: 1; }
       50%  { transform: translateY(50vh) rotate(360deg) scaleX(-1); }
       100% { transform: translateY(105vh) rotate(720deg) scaleX(1); opacity: 0; }
     }
 
     /* ── Responsive ───────────────────────────────────────────────── */
-
-    /* Phone portrait (≤ 480px) */
     @media (max-width: 480px) {
-      .home-card, .scenario-card, .reveal-card, .results-card { padding: 20px 14px; }
-      .home-card h1       { font-size: 2rem; }
-      .true-emotion       { font-size: 1.55rem; }
-      .score-circle       { width: 96px; height: 96px; }
-      .score-num          { font-size: 2rem; }
-      .results-card       { padding: 28px 16px 24px; }
-      .results-card h2    { font-size: 1.55rem; }
-      .pixel-icon         { font-size: 2.8rem; }
-      .subtitle           { font-size: 0.97rem; }
-      /* Single-column choices on phones */
-      .choices            { grid-template-columns: 1fr; gap: 8px; }
-      /* Compact progress area */
-      .progress-wrap      { margin-bottom: 10px; }
-      /* Tighter explanation/DYK on small screens */
-      .explanation, .did-you-know { font-size: 0.92rem; }
-      /* Bigger tap area on small phones */
-      .choice-btn         { min-height: 60px; font-size: 1rem; }
-      /* Home card: reduce padding so it fits without scrolling */
-      .home-card          { padding: 28px 18px 24px; }
-      .instructions       { font-size: 0.9rem; padding: 12px 14px; }
-      .casel-badge        { font-size: 0.72rem; }
+      .home-card  { padding: 24px 16px; }
+      .reveal-card, .results-card { padding: 22px 14px; }
+      .arcade-title .line1,
+      .arcade-title .line2 { font-size: 0.8rem; }
+      .true-emotion  { font-size: 0.65rem; }
+      .score-num     { font-size: 1.4rem; }
     }
-
-    /* Tablet / iPad portrait (481px – 768px) */
-    @media (min-width: 481px) and (max-width: 768px) {
-      .choices { grid-template-columns: 1fr 1fr; }
-      .choice-btn { min-height: 58px; }
-      .home-card, .scenario-card, .reveal-card, .results-card {
-        max-width: 90vw;
+    /* Phone: single-column choices, tighter HUD */
+    @media (max-width: 390px) {
+      .choices { grid-template-columns: 1fr; }
+      .choice-btn { font-size: 0.42rem; padding: 12px 8px 10px; }
+      .hud { padding: 8px 10px; gap: 6px; }
+      .scenario-dots { gap: 3px; }
+      .s-dot { width: 7px; height: 7px; }
+    }
+    /* Tablet: constrain card width for better readability */
+    @media (min-width: 600px) {
+      .home-card, .reveal-card, .results-card { max-width: 560px; margin-left: auto; margin-right: auto; }
+      .choices { max-width: 560px; margin-left: auto; margin-right: auto; }
+      .combo-grid { max-width: 560px; margin-left: auto; margin-right: auto; }
+    }
+    /* Reduce motion for accessibility */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
       }
     }
 
-    /* Tablet landscape / small desktop (769px +) */
-    @media (min-width: 769px) {
-      .choice-btn { min-height: 52px; }
+    /* ══════════════════════════════════════════════════════════════ */
+    /*  WORLD SELECT SCREEN                                           */
+    /* ══════════════════════════════════════════════════════════════ */
+    #world-select-screen { background: var(--navy); overflow: hidden; }
+
+    .world-select-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: clamp(0.6rem, 3vw, 0.82rem);
+      color: var(--yellow);
+      text-shadow: 2px 2px 0 var(--pink);
+      margin-bottom: 6px;
+      letter-spacing: 0.06em;
+      text-align: center;
+      position: relative; z-index: 1;
+    }
+    .world-select-sub {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: rgba(255,255,254,0.5);
+      margin-bottom: 24px;
+      text-align: center;
+      position: relative; z-index: 1;
     }
 
-    /* Touch device utility: remove shimmer bg animation that can lag on low-end devices */
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    .world-map {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      width: 100%;
+      max-width: 420px;
+      position: relative; z-index: 1;
     }
+    .world-connector {
+      width: 4px; height: 28px;
+      background: repeating-linear-gradient(
+        180deg, rgba(124,58,237,0.5) 0px, rgba(124,58,237,0.5) 5px,
+        transparent 5px, transparent 10px
+      );
+      margin: 0 auto;
+    }
+    .world-connector.unlocked {
+      background: repeating-linear-gradient(
+        180deg, var(--cyan) 0px, var(--cyan) 5px,
+        transparent 5px, transparent 10px
+      );
+    }
+
+    .world-node {
+      background: var(--purple);
+      border: 3px solid var(--violet);
+      border-radius: 6px;
+      padding: 16px 18px 14px;
+      width: 100%;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s, border-color 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    @media (hover: hover) {
+      .world-node:hover:not(.locked) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 24px rgba(124,58,237,0.4);
+        border-color: var(--pink);
+      }
+    }
+    .world-node:active:not(.locked) {
+      transform: scale(0.97);
+      border-color: var(--pink);
+    }
+    .world-node.locked { opacity: 0.42; cursor: not-allowed; filter: grayscale(0.5); }
+    .world-node.complete { border-color: var(--green); box-shadow: 0 0 16px rgba(6,214,160,0.2); }
+    .world-node.active-world {
+      border-color: var(--cyan);
+      animation: worldPulse 2.2s ease-in-out infinite;
+    }
+    @keyframes worldPulse {
+      0%,100% { box-shadow: 0 0 14px rgba(76,201,240,0.25); }
+      50%     { box-shadow: 0 0 30px rgba(76,201,240,0.5); }
+    }
+
+    .world-icon { font-size: 2rem; flex-shrink: 0; width: 48px; text-align: center; }
+    .world-info { flex: 1; text-align: left; }
+    .world-num {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.36rem; color: var(--cyan);
+      letter-spacing: 0.1em; margin-bottom: 4px;
+    }
+    .world-name {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.52rem; color: var(--yellow);
+      letter-spacing: 0.04em; line-height: 1.5; margin-bottom: 4px;
+    }
+    .world-desc {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700; font-size: 0.76rem;
+      color: rgba(255,255,254,0.6); line-height: 1.4;
+    }
+    .world-status {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.36rem; letter-spacing: 0.06em; flex-shrink: 0;
+    }
+    .world-status.s-lock   { color: rgba(255,255,254,0.3); }
+    .world-status.s-go     { color: var(--green); animation: blink 1.4s step-end infinite; }
+    .world-status.s-done   { color: var(--yellow); }
+    .world-status.s-replay { color: var(--cyan); }
+
+    .badges-row {
+      display: flex; gap: 8px; flex-wrap: wrap;
+      justify-content: center; margin-top: 20px;
+      position: relative; z-index: 1;
+    }
+    .badge-chip {
+      display: flex; align-items: center; gap: 5px;
+      background: rgba(45,27,105,0.6);
+      border: 1px solid rgba(124,58,237,0.35);
+      border-radius: 3px; padding: 5px 9px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.3rem; color: rgba(255,255,254,0.4);
+      letter-spacing: 0.05em;
+      transition: border-color 0.3s, color 0.3s;
+    }
+    .badge-chip.earned {
+      border-color: var(--yellow); color: var(--yellow);
+      box-shadow: 0 0 8px rgba(255,214,10,0.2);
+    }
+    .badge-chip .badge-icon { font-size: 0.9rem; }
+
+    /* ══════════════════════════════════════════════════════════════ */
+    /*  COMBO MECHANIC                                                */
+    /* ══════════════════════════════════════════════════════════════ */
+    .combo-instruction {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.42rem; color: var(--cyan);
+      letter-spacing: 0.04em; line-height: 1.8;
+      margin-bottom: 10px; text-align: center;
+    }
+    .combo-counter {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.36rem; color: var(--yellow);
+      letter-spacing: 0.06em; text-align: center;
+      margin-bottom: 8px; min-height: 1.2em;
+    }
+    .combo-grid {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px;
+    }
+    @media (max-width: 420px) { .combo-grid { grid-template-columns: 1fr 1fr; } }
+
+    .combo-btn {
+      background: var(--purple);
+      border: 2px solid var(--violet); border-radius: 6px;
+      padding: 11px 7px 9px;
+      font-family: 'Press Start 2P', monospace;
+      cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+      opacity: 0; transform: translateY(10px);
+      transition: border-color 0.15s, background 0.15s, transform 0.2s, opacity 0.2s;
+      text-align: center;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      min-height: 70px;
+    }
+    .combo-btn.revealed { opacity: 1; transform: translateY(0); }
+    @media (hover: hover) {
+      .combo-btn:hover:not(:disabled):not(.selected) {
+        border-color: var(--cyan); background: rgba(76,201,240,0.08); transform: scale(1.03);
+      }
+    }
+    .combo-btn:active:not(:disabled):not(.selected) {
+      border-color: var(--cyan); background: rgba(76,201,240,0.08); transform: scale(0.96);
+    }
+    .combo-btn.selected {
+      border-color: var(--yellow); background: rgba(255,214,10,0.1);
+      box-shadow: 0 0 10px rgba(255,214,10,0.25);
+    }
+    .combo-btn.selected .combo-letter { background: var(--yellow); color: var(--navy); }
+    .combo-btn:disabled { cursor: default; }
+    .combo-btn.correct-combo { border-color: var(--green); background: rgba(6,214,160,0.12); }
+    .combo-btn.wrong-combo   { border-color: var(--pink);  background: rgba(247,37,133,0.1); }
+    .combo-letter {
+      width: 16px; height: 16px; border-radius: 2px;
+      background: var(--navy); color: rgba(255,255,254,0.5);
+      font-family: 'Press Start 2P', monospace; font-size: 0.34rem;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .combo-emoji { font-size: 1.3rem; }
+    .combo-label {
+      font-size: 0.34rem; color: rgba(255,255,254,0.75);
+      text-transform: uppercase; letter-spacing: 0.03em; line-height: 1.4;
+    }
+    .combo-submit-btn {
+      font-family: 'Press Start 2P', monospace; font-size: 0.44rem;
+      background: var(--violet); color: var(--white);
+      padding: 11px 18px; border: 3px solid var(--violet-dark); border-radius: 4px;
+      box-shadow: 0 4px 0 var(--violet-dark); cursor: pointer; width: 100%;
+      letter-spacing: 0.04em;
+      transition: transform 0.1s, box-shadow 0.1s, opacity 0.2s; margin-top: 4px;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      min-height: 44px;
+    }
+    .combo-submit-btn:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: none; }
+    @media (hover: hover) {
+      .combo-submit-btn:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 6px 0 var(--violet-dark); }
+    }
+    .combo-submit-btn:active:not(:disabled) { transform: translateY(1px); box-shadow: 0 2px 0 var(--violet-dark); }
+
+    /* ══════════════════════════════════════════════════════════════ */
+    /*  HUD EXTRAS                                                    */
+    /* ══════════════════════════════════════════════════════════════ */
+    .scenario-dots { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+    .s-dot {
+      width: 9px; height: 9px; border-radius: 2px;
+      background: rgba(255,255,254,0.15); border: 1px solid rgba(255,255,254,0.2);
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .s-dot.done    { background: var(--green);  border-color: var(--green); }
+    .s-dot.wrong   { background: var(--pink);   border-color: var(--pink); }
+    .s-dot.current { background: var(--yellow); border-color: var(--yellow); animation: blink 0.8s step-end infinite; }
+    .hud-world-label {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.34rem; color: var(--cyan); letter-spacing: 0.08em;
+    }
+    .btn-map {
+      font-family: 'Press Start 2P', monospace; font-size: 0.36rem;
+      background: transparent; color: rgba(76,201,240,0.65);
+      border: 1px solid rgba(76,201,240,0.28); border-radius: 3px;
+      padding: 5px 9px; cursor: pointer; letter-spacing: 0.04em; margin-top: 6px;
+      transition: color 0.15s, border-color 0.15s;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      min-height: 44px;
+    }
+    @media (hover: hover) {
+      .btn-map:hover { color: var(--cyan); border-color: var(--cyan); }
+    }
+    .btn-map:active { color: var(--cyan); border-color: var(--cyan); }
+
+    /* ══════════════════════════════════════════════════════════════ */
+    /*  OVERLAYS                                                      */
+    /* ══════════════════════════════════════════════════════════════ */
+    #world-unlock-overlay {
+      position: fixed; inset: 0;
+      background: rgba(15,14,23,0.96); z-index: 700;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.4s ease; padding: 20px;
+    }
+    #world-unlock-overlay.show { opacity: 1; pointer-events: all; }
+    .unlock-world-icon { font-size: 4rem; margin-bottom: 14px; animation: stampIn 0.7s cubic-bezier(0.22,0.61,0.36,1) both; }
+    .unlock-world-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: clamp(0.58rem, 3vw, 0.82rem);
+      color: var(--yellow); text-shadow: 3px 3px 0 var(--pink);
+      margin-bottom: 10px; text-align: center;
+      letter-spacing: 0.05em; line-height: 1.6;
+      animation: bannerDrop 0.5s ease both; animation-delay: 0.2s;
+    }
+    .unlock-world-sub {
+      font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.9rem;
+      color: rgba(255,255,254,0.72); margin-bottom: 26px; text-align: center;
+      line-height: 1.55; max-width: 340px;
+      animation: slideUp 0.5s ease both; animation-delay: 0.35s;
+    }
+    .btn-enter-world {
+      font-family: 'Press Start 2P', monospace; font-size: 0.54rem;
+      background: var(--pink); color: var(--white);
+      padding: 13px 26px; border: 3px solid var(--pink-dark); border-radius: 4px;
+      box-shadow: 0 4px 0 var(--pink-dark); cursor: pointer; letter-spacing: 0.04em;
+      animation: btnPulse 2s ease-in-out infinite;
+    }
+    .btn-enter-world:hover { transform: translateY(-2px); box-shadow: 0 6px 0 var(--pink-dark); }
+
+    #unlock-banner {
+      position: fixed; bottom: 48px; left: 50%;
+      transform: translateX(-50%) translateY(120px);
+      z-index: 650;
+      background: linear-gradient(135deg, var(--purple), #1a0a4e);
+      border: 2px solid var(--yellow); border-radius: 4px;
+      padding: 11px 18px;
+      font-family: 'Press Start 2P', monospace; font-size: 0.4rem;
+      color: var(--yellow); letter-spacing: 0.06em;
+      line-height: 1.8; text-align: center; pointer-events: none;
+      transition: transform 0.5s cubic-bezier(0.34,1.56,0.64,1);
+      white-space: nowrap; box-shadow: 0 0 18px rgba(255,214,10,0.3);
+    }
+    #unlock-banner.show { transform: translateX(-50%) translateY(0); }
+
+    #badge-fanfare {
+      position: fixed; top: 60px; left: 50%;
+      transform: translateX(-50%) scale(0.7);
+      z-index: 680;
+      background: var(--purple); border: 3px solid var(--yellow);
+      border-radius: 6px; padding: 14px 22px; text-align: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+      box-shadow: 0 0 28px rgba(255,214,10,0.4);
+    }
+    #badge-fanfare.show { opacity: 1; transform: translateX(-50%) scale(1); }
+    .fanfare-icon { font-size: 2rem; margin-bottom: 5px; }
+    .fanfare-title {
+      font-family: 'Press Start 2P', monospace; font-size: 0.38rem;
+      color: var(--yellow); letter-spacing: 0.08em; line-height: 1.7; margin-bottom: 4px;
+    }
+    .fanfare-name {
+      font-family: 'Press Start 2P', monospace; font-size: 0.5rem;
+      color: var(--white); letter-spacing: 0.04em;
+    }
+
+    /* Results badges */
+    .results-badges { margin: 0 0 16px; text-align: center; }
+    .results-badges-label {
+      font-family: 'Press Start 2P', monospace; font-size: 0.36rem;
+      color: var(--yellow); letter-spacing: 0.08em; margin-bottom: 10px;
+    }
+    .results-badges-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
   </style>
 </head>
 <body>
@@ -896,35 +1297,69 @@
   <!-- ── Global UI elements ──────────────────────────────────────── -->
   <div id="flash-overlay"></div>
   <div id="toast"></div>
-  <div class="watermark">✦ TheStaffLounge26 ✦</div>
+  <div class="watermark">✦ THESTAFF LOUNGE26 ✦ TPT ✦</div>
+
+  <!-- ── Overlay elements ───────────────────────────────────────── -->
+  <div id="world-unlock-overlay">
+    <div class="unlock-world-icon" id="unlock-world-icon">🌌</div>
+    <div class="unlock-world-title" id="unlock-world-title">WORLD 3 UNLOCKED!</div>
+    <div class="unlock-world-sub" id="unlock-world-sub">You've proven yourself. The deepest layers await.</div>
+    <button class="btn-enter-world" id="btn-enter-world" onclick="dismissWorldUnlock()">▶ ENTER WORLD</button>
+  </div>
+  <div id="unlock-banner">🔓 NEW SCENARIO UNLOCKED!</div>
+  <div id="badge-fanfare">
+    <div class="fanfare-icon" id="fanfare-icon">🏅</div>
+    <div class="fanfare-title">BADGE EARNED!</div>
+    <div class="fanfare-name" id="fanfare-name">FIRST READ</div>
+  </div>
 
   <!-- ════════════════════════════════════════════════════════════ -->
   <!--  HOME SCREEN                                                 -->
   <!-- ════════════════════════════════════════════════════════════ -->
   <div class="screen active" id="home-screen">
-    <!-- Floating background -->
-    <div class="float-bg" aria-hidden="true">
-      <span>😊</span><span>💔</span><span>😤</span><span>😰</span>
-      <span>😳</span><span>🧠</span><span>💪</span><span>😔</span>
-      <span>😶</span><span>🔍</span>
+    <!-- Pixel star field (dots populated by JS) -->
+    <div class="star-field" id="star-field" aria-hidden="true"></div>
+
+    <!-- Floating pixel face boxes -->
+    <div class="pixel-faces" aria-hidden="true">
+      <div class="pixel-face">😊</div>
+      <div class="pixel-face">😤</div>
+      <div class="pixel-face">😰</div>
+      <div class="pixel-face">💔</div>
     </div>
 
+    <!-- Blinking brand tag above card -->
+    <div class="brand-tag">★ STAFF LOUNGE 26 ★</div>
+
     <div class="home-card">
-      <span class="pixel-icon">🧠</span>
-      <h1 id="home-title" aria-label="Emotion Decoder"></h1>
+      <div class="arcade-title">
+        <span class="line1">EMOTION</span>
+        <span class="line2">DECODER</span>
+      </div>
       <p class="subtitle">Can you figure out what they're REALLY feeling?</p>
 
       <div class="instructions">
-        Read each scenario carefully — pay attention to the character's body language, behavior, and situation.
-        Then pick the emotion they're <strong>truly</strong> feeling underneath the surface.
+        Read each scenario carefully, pay attention to body language, behavior, and situation.
+        Pick the emotion they're <strong>truly</strong> feeling underneath the surface.
         Hint: people don't always show what they actually feel! 🎯
       </div>
 
-      <div class="casel-badge">
-        <span>🌱</span> Self-Awareness + Social Awareness
-      </div>
-      <button class="btn btn-primary" onclick="startGame()" style="margin-top:20px">▶ &nbsp;Start Game</button>
+      <div class="casel-badge">🌱 SELF-AWARENESS + SOCIAL AWARENESS</div>
+      <br />
+      <button class="btn btn-primary" onclick="showWorldSelect()">▶ START GAME</button>
     </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!--  WORLD SELECT SCREEN                                         -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <div class="screen" id="world-select-screen">
+    <div class="star-field" id="star-field-ws" aria-hidden="true"></div>
+    <div class="brand-tag" style="margin-bottom:12px">★ SELECT WORLD ★</div>
+    <div class="world-select-title">CHOOSE YOUR MISSION</div>
+    <div class="world-select-sub">Each world goes deeper than the last.</div>
+    <div class="world-map" id="world-map"><!-- injected by JS --></div>
+    <div class="badges-row" id="badges-row-ws"><!-- injected by JS --></div>
   </div>
 
   <!-- ════════════════════════════════════════════════════════════ -->
@@ -933,10 +1368,14 @@
   <div class="screen" id="game-screen">
     <div class="progress-wrap">
       <div class="progress-top">
-        <span class="progress-text" id="progress-text">Scenario 1 of 8</span>
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <span class="hud-logo">EMOTION DECODER</span>
+          <span class="hud-world-label" id="hud-world-label">WORLD 1</span>
+        </div>
         <div class="score-live-wrap">
-          <span class="streak-badge" id="streak-badge">🔥 ×1</span>
-          <span class="score-live"   id="score-live">Score: 0</span>
+          <span class="streak-badge"  id="streak-badge">🔥 ×1</span>
+          <div class="scenario-dots"  id="scenario-dots"></div>
+          <span class="score-live"    id="score-live">★ 0</span>
         </div>
       </div>
       <div class="progress-track">
@@ -975,13 +1414,13 @@
         choices: [
           { emoji:"😠", label:"Angry",        id:"angry"       },
           { emoji:"😳", label:"Embarrassed",  id:"embarrassed" },
-          { emoji:"😤", label:"Frustrated",   id:"frustrated"  },
-          { emoji:"😞", label:"Disappointed", id:"disappointed"}
+          { emoji:"🤩", label:"Excited",      id:"excited"     },
+          { emoji:"😎", label:"Proud",        id:"proud"       }
         ],
         correct: "embarrassed",
         trueEmotion: "EMBARRASSED",
-        explanation: "Marcus's slamming and storming looks like anger — but he's avoiding eye contact and isolating, both signs of shame. Missing the team cut in front of friends is deeply embarrassing. The aggression is armor protecting a bruised ego, not pure anger.",
-        didYouKnow: "Anger is called a 'secondary emotion' because it often covers more vulnerable feelings like shame or fear — it's easier to feel mad than humiliated."
+        explanation: "Marcus's slamming and storming looks like anger, but he's avoiding eye contact and isolating, both signs of shame. Missing the team cut in front of friends is deeply embarrassing. The aggression is armor protecting a bruised ego, not pure anger.",
+        didYouKnow: "Anger is called a 'secondary emotion' because it often covers more vulnerable feelings like shame or fear, it's easier to feel mad than humiliated."
       },
       {
         name: "Sofia", num: 2, isTwist: false,
@@ -989,27 +1428,27 @@
         choices: [
           { emoji:"😄", label:"Happy",       id:"happy"       },
           { emoji:"😵", label:"Overwhelmed", id:"overwhelmed" },
-          { emoji:"💪", label:"Confident",   id:"confident"   },
-          { emoji:"😴", label:"Bored",       id:"bored"       }
+          { emoji:"😴", label:"Bored",       id:"bored"       },
+          { emoji:"🏆", label:"Proud",       id:"proud"       }
         ],
         correct: "overwhelmed",
         trueEmotion: "OVERWHELMED",
-        explanation: "Making jokes when called on is a classic deflection from not knowing the answer — and three weeks of missing homework signals something is piling up. Sofia uses humor as a shield so no one notices she's drowning. That's overwhelm, not happiness.",
-        didYouKnow: "Humor is a real coping mechanism — researchers call it 'adaptive humor,' but when it's constant, it's often a sign someone is masking serious stress."
+        explanation: "Making jokes when called on is a classic deflection from not knowing the answer, and three weeks of missing homework signals something is piling up. Sofia uses humor as a shield so no one notices she's drowning. That's overwhelm, not happiness.",
+        didYouKnow: "Humor is a real coping mechanism, researchers call it 'adaptive humor,' but when it's constant, it's often a sign someone is masking serious stress."
       },
       {
         name: "Jaylen", num: 3, isTwist: false,
-        text: "Jaylen sits completely still during the fire drill, staring straight ahead while everyone else is talking. He doesn't flinch at loud noises — but his knuckles are white from gripping the desk.",
+        text: "Jaylen sits completely still during the fire drill, staring straight ahead while everyone else is talking. He doesn't flinch at loud noises, but his knuckles are white from gripping the desk.",
         choices: [
           { emoji:"😌", label:"Calm",    id:"calm"    },
-          { emoji:"😑", label:"Bored",   id:"bored"   },
           { emoji:"😰", label:"Anxious", id:"anxious" },
-          { emoji:"🎯", label:"Focused", id:"focused" }
+          { emoji:"🤩", label:"Excited", id:"excited" },
+          { emoji:"😄", label:"Happy",   id:"happy"   }
         ],
         correct: "anxious",
         trueEmotion: "ANXIOUS",
-        explanation: "Jaylen looks calm, but freezing — going very still and tuning out — is a real anxiety response. White-knuckled gripping is a physical sign of tension. His body is in 'freeze mode,' which is just as much a stress response as panic.",
-        didYouKnow: "The freeze response is part of the same fight-flight-freeze system — when something feels too big to fight or flee, the brain sometimes shuts us down instead."
+        explanation: "Jaylen looks calm, but freezing, going very still and tuning out, is a real anxiety response. White-knuckled gripping is a physical sign of tension. His body is in 'freeze mode,' which is just as much a stress response as panic.",
+        didYouKnow: "The freeze response is part of the same fight-flight-freeze system, when something feels too big to fight or flee, the brain sometimes shuts us down instead."
       },
       {
         name: "Priya", num: 4, isTwist: false,
@@ -1017,27 +1456,27 @@
         choices: [
           { emoji:"😐", label:"Indifferent", id:"indifferent" },
           { emoji:"💔", label:"Hurt",        id:"hurt"        },
-          { emoji:"😒", label:"Annoyed",     id:"annoyed"     },
+          { emoji:"😄", label:"Happy",       id:"happy"       },
           { emoji:"😌", label:"Relieved",    id:"relieved"    }
         ],
         correct: "hurt",
         trueEmotion: "HURT",
-        explanation: "Saying 'I don't care' and walking away fast are textbook signs of emotional withdrawal — protecting yourself from pain by pretending you don't feel it. Three cancellations would hurt anyone. Priya cares deeply; she just doesn't feel safe showing it.",
-        didYouKnow: "Emotional suppression — acting like you don't care — actually makes feelings more intense over time, not less. The feelings go underground, not away."
+        explanation: "Saying 'I don't care' and walking away fast are textbook signs of emotional withdrawal, protecting yourself from pain by pretending you don't feel it. Three cancellations would hurt anyone. Priya cares deeply; she just doesn't feel safe showing it.",
+        didYouKnow: "Emotional suppression, acting like you don't care, actually makes feelings more intense over time, not less. The feelings go underground, not away."
       },
       {
         name: "Devon", num: 5, isTwist: false,
         text: "Devon brags loudly about his new shoes and interrupts other students to talk about his stuff. He makes fun of someone else's backpack in front of the group.",
         choices: [
           { emoji:"😎", label:"Confident", id:"confident" },
-          { emoji:"🤩", label:"Excited",   id:"excited"   },
           { emoji:"😟", label:"Insecure",  id:"insecure"  },
-          { emoji:"🦁", label:"Proud",     id:"proud"     }
+          { emoji:"😴", label:"Bored",     id:"bored"     },
+          { emoji:"😔", label:"Lonely",    id:"lonely"    }
         ],
         correct: "insecure",
         trueEmotion: "INSECURE",
-        explanation: "Truly confident people rarely need to put others down to feel good. Loud bragging and mocking someone else's things is a way of managing deep insecurity — 'if I can make them look lesser, I feel bigger.' It's the opposite of real confidence.",
-        didYouKnow: "Psychologists call this 'downward social comparison' — putting others down to boost your own self-image. It's a sign of low self-worth, not high confidence."
+        explanation: "Truly confident people rarely need to put others down to feel good. Loud bragging and mocking someone else's things is a way of managing deep insecurity, 'if I can make them look lesser, I feel bigger.' It's the opposite of real confidence.",
+        didYouKnow: "Psychologists call this 'downward social comparison', putting others down to boost your own self-image. It's a sign of low self-worth, not high confidence."
       },
       {
         name: "Aaliyah", num: 6, isTwist: false,
@@ -1046,12 +1485,12 @@
           { emoji:"😢", label:"Sad",       id:"sad"       },
           { emoji:"😡", label:"Angry",     id:"angry"     },
           { emoji:"😶", label:"Dismissed", id:"dismissed" },
-          { emoji:"😰", label:"Anxious",   id:"anxious"   }
+          { emoji:"🤩", label:"Excited",   id:"excited"   }
         ],
         correct: "dismissed",
         trueEmotion: "DISMISSED",
-        explanation: "Aaliyah isn't just sad about the project — she feels like her voice and ideas don't matter to the group. Being changed without consultation sends the message 'your input isn't important.' That feeling of being unheard and dismissed is deeper than sadness about a project decision.",
-        didYouKnow: "Feeling dismissed or unheard is one of the most commonly reported unmet emotional needs among middle schoolers — and it's strongly linked to disengagement in school."
+        explanation: "Aaliyah isn't just sad about the project, she feels like her voice and ideas don't matter to the group. Being changed without consultation sends the message 'your input isn't important.' That feeling of being unheard and dismissed is deeper than sadness about a project decision.",
+        didYouKnow: "Feeling dismissed or unheard is one of the most commonly reported unmet emotional needs among middle schoolers, and it's strongly linked to disengagement in school."
       },
       {
         name: "Tomás", num: 7, isTwist: false,
@@ -1059,45 +1498,281 @@
         choices: [
           { emoji:"🤷", label:"Not Hungry", id:"not-hungry" },
           { emoji:"😔", label:"Lonely",     id:"lonely"     },
-          { emoji:"🤒", label:"Unwell",     id:"unwell"     },
+          { emoji:"😄", label:"Happy",      id:"happy"      },
           { emoji:"😶", label:"Shy",        id:"shy"        }
         ],
         correct: "lonely",
         trueEmotion: "LONELY",
         explanation: "Sitting outside the cafeteria and watching others pass is a painful image of someone who wants to belong but doesn't know how. 'I'm not hungry' is an easier thing to say than 'I have no one to sit with.' Avoidance of the situation doesn't mean indifference to it.",
-        didYouKnow: "Research shows that social isolation activates the same brain regions as physical pain — loneliness literally hurts the same way a broken arm does."
+        didYouKnow: "Research shows that social isolation activates the same brain regions as physical pain, loneliness literally hurts the same way a broken arm does."
       },
       {
         name: "Jordan", num: 8, isTwist: true,
         text: "Jordan is new to school today. They smile at absolutely everyone, volunteer for every activity the teacher mentions, compliment people's clothes, and laugh at every joke. By the end of the day, three students think Jordan is the most confident, happy person they've ever met.",
         choices: [
-          { emoji:"😊", label:"Happy",     id:"happy"     },
-          { emoji:"🎉", label:"Excited",   id:"excited"   },
+          { emoji:"💪", label:"Confident", id:"confident" },
           { emoji:"😬", label:"Nervous",   id:"nervous"   },
-          { emoji:"💪", label:"Confident", id:"confident" }
+          { emoji:"😢", label:"Sad",       id:"sad"       },
+          { emoji:"😡", label:"Angry",     id:"angry"     }
         ],
         correct: "nervous",
         trueEmotion: "NERVOUS / SCARED",
-        explanation: "Jordan's nonstop smiling, volunteering, and complimenting is a people-pleasing response — doing everything possible to make others like them so they feel safe. This is called 'fawning,' a real stress response where we work overtime to gain approval because we're scared of rejection.",
-        didYouKnow: "'Fawning' — extreme people-pleasing — is a recognized stress response alongside fight, flight, and freeze. It often develops when someone has learned that making others happy keeps them safe."
+        explanation: "Jordan's nonstop smiling, volunteering, and complimenting is a people-pleasing response, doing everything possible to make others like them so they feel safe. This is called 'fawning,' a real stress response where we work overtime to gain approval because we're scared of rejection.",
+        didYouKnow: "'Fawning', extreme people-pleasing, is a recognized stress response alongside fight, flight, and freeze. It often develops when someone has learned that making others happy keeps them safe."
       }
+    ];
+
+    /* ── Rename World 1 ───────────────────────────────────────── */
+    const WORLD1_SCENARIOS = SCENARIOS;
+
+    /* ─────────────────────────────────────────────────────────────
+       WORLD 2 SCENARIOS, Emotion Combos (pick 2 of 6)
+    ───────────────────────────────────────────────────────────── */
+    const WORLD2_SCENARIOS = [
+      {
+        name: "Keisha", num: 1, world: 2, isCombo: true,
+        text: "Keisha just won the spelling bee in front of the whole school. She holds her trophy and waves, but as soon as she steps offstage she immediately texts her mom asking if she did okay. She keeps replaying the moment she almost misspelled the last word.",
+        comboChoices: [
+          { emoji:"🏆", label:"Proud",    id:"proud"   },
+          { emoji:"😬", label:"Anxious",  id:"anxious" },
+          { emoji:"😮", label:"Shocked",  id:"shocked" },
+          { emoji:"🤩", label:"Excited",  id:"excited" },
+          { emoji:"😟", label:"Doubtful", id:"doubtful"},
+          { emoji:"😊", label:"Happy",    id:"happy"   }
+        ],
+        correct: ["proud","anxious"],
+        trueEmotion: "PROUD + ANXIOUS",
+        explanation: "Winning should feel great, and it does! Keisha is proud. But replaying the near-miss and immediately seeking reassurance shows that anxiety is running alongside the pride. Two real emotions can exist at the same time, especially in high-stakes moments.",
+        didYouKnow: "Psychologists call this 'emotional ambivalence', holding two conflicting feelings at once. It's completely normal and actually a sign of emotional sophistication."
+      },
+      {
+        name: "Darius", num: 2, world: 2, isCombo: true,
+        text: "Darius's parents tell him they're moving across the country over winter break. His room is full of posters from his old neighborhood. He starts packing his things the same day, but he spends twenty minutes staring at a photo of his friends before putting it in the box.",
+        comboChoices: [
+          { emoji:"😢", label:"Sad",      id:"sad"     },
+          { emoji:"😤", label:"Angry",    id:"angry"   },
+          { emoji:"😰", label:"Scared",   id:"scared"  },
+          { emoji:"😮", label:"Shocked",  id:"shocked" },
+          { emoji:"💔", label:"Grieving", id:"grieving"},
+          { emoji:"🤷", label:"Numb",     id:"numb"    }
+        ],
+        correct: ["grieving","scared"],
+        trueEmotion: "GRIEVING + SCARED",
+        explanation: "Staring at that photo before boxing it is a small act of grief, saying goodbye to a version of your life. Packing efficiently on day one can also be a way of managing fear by staying busy. Both grief and fear about the unknown are real and valid here.",
+        didYouKnow: "Anticipatory grief, grieving something before it's fully gone, is a documented emotional process. It often shows up as numbness, sadness, or compulsive busy-ness."
+      },
+      {
+        name: "Simone", num: 3, world: 2, isCombo: true,
+        text: "Simone's best friend starts hanging out with a new group and stops texting back as fast. Simone posts a picture captioned 'having the best week ever!' and tags a bunch of people. She smiles through every photo but checks her phone obsessively after posting.",
+        comboChoices: [
+          { emoji:"😄", label:"Happy",    id:"happy"    },
+          { emoji:"💔", label:"Hurt",     id:"hurt"     },
+          { emoji:"😒", label:"Jealous",  id:"jealous"  },
+          { emoji:"😰", label:"Anxious",  id:"anxious"  },
+          { emoji:"😎", label:"Confident",id:"confident"},
+          { emoji:"😑", label:"Bored",    id:"bored"    }
+        ],
+        correct: ["hurt","jealous"],
+        trueEmotion: "HURT + JEALOUS",
+        explanation: "The 'best week ever' post is a performance, trying to show the friend (and maybe herself) that she's fine. Checking the phone obsessively reveals she's hoping for a reaction. That's hurt hoping to be noticed, layered with jealousy over the new group.",
+        didYouKnow: "Social media posts made right after feeling rejected often function as 'social signaling', an unconscious attempt to reclaim status or get attention from the person who withdrew."
+      },
+      {
+        name: "Eli", num: 4, world: 2, isCombo: true,
+        text: "Eli's coach pulls him out of the starting lineup and gives his spot to a newer player. Eli cheers loudly from the bench for every good play his team makes, but after the game, when someone says 'great sportsmanship,' he goes home and cries alone in his room.",
+        comboChoices: [
+          { emoji:"🏅", label:"Proud",     id:"proud"    },
+          { emoji:"😊", label:"Happy",     id:"happy"    },
+          { emoji:"😞", label:"Hurt",      id:"hurt"     },
+          { emoji:"😤", label:"Frustrated",id:"frustrated"},
+          { emoji:"😠", label:"Angry",     id:"angry"    },
+          { emoji:"😌", label:"Peaceful",  id:"peaceful" }
+        ],
+        correct: ["hurt","frustrated"],
+        trueEmotion: "HURT + FRUSTRATED",
+        explanation: "Eli is showing genuine sportsmanship outwardly, and maybe part of him is glad the team is winning. But crying alone afterward is the real tell: he's deeply hurt by being benched, and likely frustrated that his effort didn't keep his spot. Public bravery doesn't erase private pain.",
+        didYouKnow: "Research on athletes shows that benching triggers the same emotional pattern as social rejection, the brain processes both through overlapping neural circuits."
+      },
+      {
+        name: "Maya", num: 5, world: 2, isCombo: true,
+        text: "Maya gets invited to her first high school party. She spends two hours getting ready and posts a confident selfie before leaving. At the party she stands near the snack table the whole time, says yes to every conversation, laughs extra loud, and leaves an hour early claiming she's tired.",
+        comboChoices: [
+          { emoji:"🎉", label:"Excited",    id:"excited"  },
+          { emoji:"😰", label:"Nervous",    id:"nervous"  },
+          { emoji:"😊", label:"Happy",      id:"happy"    },
+          { emoji:"😤", label:"Overwhelmed",id:"overwhelmed"},
+          { emoji:"😴", label:"Tired",      id:"tired"    },
+          { emoji:"😶", label:"Out of place",id:"outofplace"}
+        ],
+        correct: ["nervous","overwhelmed"],
+        trueEmotion: "NERVOUS + OVERWHELMED",
+        explanation: "Two hours of prep + extra loud laughter + snack table anchoring + leaving early are all anxiety management strategies. The confident selfie was made for an audience (including herself). She wanted to be there but her nervous system found the whole thing too much.",
+        didYouKnow: "Staying near food or drink stations at social events is a documented anxiety behavior, it gives you something to do with your hands and a reason to hover without engaging."
+      },
+      {
+        name: "Theo", num: 6, world: 2, isCombo: true,
+        text: "Theo's parents have been arguing loudly every night for a week. At school he keeps cracking jokes, finishing everyone's sentences, and organizing a spontaneous game at lunch. His teacher writes on his report card: 'natural leader, brings energy to the room.'",
+        comboChoices: [
+          { emoji:"😄", label:"Happy",     id:"happy"    },
+          { emoji:"😰", label:"Scared",    id:"scared"   },
+          { emoji:"💪", label:"Confident", id:"confident"},
+          { emoji:"😣", label:"Stressed",  id:"stressed" },
+          { emoji:"😶", label:"Numb",      id:"numb"     },
+          { emoji:"🤹", label:"Performing",id:"performing"}
+        ],
+        correct: ["scared","stressed"],
+        trueEmotion: "SCARED + STRESSED",
+        explanation: "Organizing games and filling silences is Theo's way of controlling something, school, when home feels chaotic. The teacher sees a leader; what's underneath is a kid running from fear by staying in motion. Constant action is a classic way of not having to sit with stress.",
+        didYouKnow: "Children in unstable home environments often become 'social conductors' at school, controlling group dynamics as a coping mechanism when family life feels uncontrollable."
+      },
+      {
+        name: "Zara", num: 7, world: 2, isCombo: true,
+        text: "Zara's grandmother passes away. At the funeral, Zara is the one comforting everyone else: handing out tissues, making sure people have water, whispering 'it's okay' to her crying cousins. That night her dad finds her asleep at her desk with a drawing of her grandmother in her hand.",
+        comboChoices: [
+          { emoji:"😢", label:"Sad",         id:"sad"     },
+          { emoji:"💪", label:"Strong",       id:"strong"  },
+          { emoji:"💔", label:"Heartbroken",  id:"heartbroken"},
+          { emoji:"😶", label:"Disconnected", id:"disconnected"},
+          { emoji:"🤗", label:"Nurturing",    id:"nurturing"},
+          { emoji:"😰", label:"Overwhelmed",  id:"overwhelmed"}
+        ],
+        correct: ["heartbroken","disconnected"],
+        trueEmotion: "HEARTBROKEN + DISCONNECTED",
+        explanation: "Zara is taking care of everyone but herself, a grief response where focusing outward blocks you from feeling your own pain. The drawing found later tells the real story: she's heartbroken and unable to fully access the emotion in public. The caretaker role disconnects her from her own grief.",
+        didYouKnow: "Compulsive caretaking during bereavement is called 'grief displacement', people manage unbearable loss by focusing on other people's needs instead of their own."
+      },
+      {
+        name: "Caleb", num: 8, world: 2, isCombo: true,
+        text: "Caleb gets a 64 on a test he studied hard for. In class, he immediately raises his hand to ask the teacher about extra credit, takes detailed notes during the review, and tells his friend 'it's fine, I'll make it up.' That weekend he skips the movie his friends invited him to and studies for five hours straight.",
+        comboChoices: [
+          { emoji:"💪", label:"Determined",  id:"determined"},
+          { emoji:"😤", label:"Frustrated",  id:"frustrated"},
+          { emoji:"😊", label:"Fine",         id:"fine"     },
+          { emoji:"😟", label:"Worried",      id:"worried"  },
+          { emoji:"😰", label:"Afraid",       id:"afraid"   },
+          { emoji:"😞", label:"Disappointed", id:"disappointed"}
+        ],
+        correct: ["disappointed","afraid"],
+        trueEmotion: "DISAPPOINTED + AFRAID",
+        explanation: "Immediate extra-credit asking, 5-hour solo study weekend, skipping social plans, that's not just determination. It's fear driving the bus. Caleb is disappointed in himself and afraid of what a bad grade means about him. 'It's fine' is the mask; the all-weekend study session is the reality.",
+        didYouKnow: "Overcompensation after failure, extreme studying, perfectionist planning, is often driven by fear of inadequacy rather than pure ambition. The emotion underneath is usually shame or fear, not motivation."
+      }
+    ];
+
+    /* ─────────────────────────────────────────────────────────────
+       WORLD 3 SCENARIOS, Hidden Depths (single pick, deeper twist)
+    ───────────────────────────────────────────────────────────── */
+    const WORLD3_SCENARIOS = [
+      {
+        name: "Ms. Rivera", num: 1, world: 3, isTwist: false,
+        text: "Ms. Rivera is the strictest teacher in school: no late work, no exceptions, no small talk. She corrects every grammar mistake, assigns the most homework, and has never been seen smiling in class. Three of her former students come back every year just to visit her.",
+        choices: [
+          { emoji:"😠", label:"Mean",      id:"mean"      },
+          { emoji:"😤", label:"Rigid",     id:"rigid"     },
+          { emoji:"❤️", label:"Caring",    id:"caring"    },
+          { emoji:"😶", label:"Indifferent",id:"indifferent"}
+        ],
+        correct: "caring",
+        trueEmotion: "DEEPLY CARING",
+        explanation: "The strictness, the corrections, the homework load, these are expressions of a high standard set because Ms. Rivera believes her students can meet it. The returning students are the tell: people don't revisit teachers who made them feel small. They revisit the ones who believed in them hard.",
+        didYouKnow: "Research on teacher impact shows that perceived strictness and actual student respect are positively correlated when the strictness is paired with consistent belief in student ability."
+      },
+      {
+        name: "Brandon", num: 2, world: 3, isTwist: false,
+        text: "Brandon is the most popular kid in school. Voted class president, always surrounded by people, first invited to every party. He has the most followers on social media. But he messages the school counselor at 11pm on a Tuesday and says: 'Can I come in tomorrow? I think something's wrong with me.'",
+        choices: [
+          { emoji:"😊", label:"Happy",   id:"happy"   },
+          { emoji:"😟", label:"Lonely",  id:"lonely"  },
+          { emoji:"😤", label:"Arrogant",id:"arrogant"},
+          { emoji:"😰", label:"Stressed",id:"stressed"}
+        ],
+        correct: "lonely",
+        trueEmotion: "PROFOUNDLY LONELY",
+        explanation: "You can be surrounded by people and completely alone at the same time. Brandon has audiences, not intimacy. The 11pm message to the counselor, not a friend, reveals there's no one in his life he can actually talk to. Social popularity and emotional connection are not the same thing.",
+        didYouKnow: "Studies consistently show that social media follower counts have zero correlation with felt loneliness, and in some demographics, higher follower counts predict greater loneliness."
+      },
+      {
+        name: "Mrs. Okafor", num: 3, world: 3, isTwist: false,
+        text: "Mrs. Okafor laughs at herself constantly. She tells the class when she makes mistakes on the board, jokes about forgetting names, and always admits when she doesn't know something. Some students think she doesn't care. She gets the highest ratings of any teacher at the school year after year.",
+        choices: [
+          { emoji:"😄", label:"Carefree",    id:"carefree"   },
+          { emoji:"💪", label:"Secure",       id:"secure"     },
+          { emoji:"😶", label:"Checked out",  id:"checkedout" },
+          { emoji:"😟", label:"Insecure",     id:"insecure"   }
+        ],
+        correct: "secure",
+        trueEmotion: "DEEPLY SECURE",
+        explanation: "Laughing at your own mistakes takes real confidence. People who are truly insecure can't tolerate being seen as wrong, they defend, deflect, or get defensive. Mrs. Okafor can admit flaws openly because her identity isn't threatened by them. That's the deepest kind of security.",
+        didYouKnow: "Psychological research shows that the ability to laugh at yourself is one of the strongest predictors of emotional resilience and secure attachment style."
+      },
+      {
+        name: "The Whole Class", num: 4, world: 3, isTwist: true,
+        text: "It's the last day of school. Every student says they're relieved. They cheer when the bell rings, throw papers in the air, and post 'FINALLY FREE' online. But three different students independently stay after class to talk to the teacher. One asks for summer reading recommendations. Another asks if she'll have the same teacher next year. A third just hangs around without saying anything.",
+        choices: [
+          { emoji:"🎉", label:"Purely Excited",   id:"excited"  },
+          { emoji:"😶", label:"Actually Sad",      id:"sad"      },
+          { emoji:"😬", label:"Relieved + Anxious",id:"mixed"    },
+          { emoji:"💪", label:"Ready to Move On",  id:"ready"    }
+        ],
+        correct: "mixed",
+        trueEmotion: "RELIEVED + ANXIOUS",
+        explanation: "The cheering is real, relief is real. But three students independently finding reasons to stay after class tells the deeper story: the structure and safety of school also ends today. The summer is uncertain. The teacher represented something stable. Both the relief and the quiet grief underneath are real at the same time.",
+        didYouKnow: "End-of-year transitions trigger what researchers call 'ambiguous loss', grief over something ending that also brought difficulty. The human brain can feel genuine relief and genuine sadness about the same thing simultaneously."
+      }
+    ];
+
+    /* ─────────────────────────────────────────────────────────────
+       WORLDS META
+    ───────────────────────────────────────────────────────────── */
+    const WORLDS = [
+      {
+        id: 1, icon: '🔍', name: 'SURFACE READS',
+        desc: 'Decode what people show vs. what they really feel.',
+        scenarios: WORLD1_SCENARIOS, totalScenarios: 8
+      },
+      {
+        id: 2, icon: '🌀', name: 'EMOTION COMBOS',
+        desc: 'Pick TWO emotions at once, feelings are layered.',
+        scenarios: WORLD2_SCENARIOS, totalScenarios: 8
+      },
+      {
+        id: 3, icon: '🌌', name: 'HIDDEN DEPTHS',
+        desc: 'The final frontier, nothing is what it seems.',
+        scenarios: WORLD3_SCENARIOS, totalScenarios: 4
+      }
+    ];
+
+    /* ─────────────────────────────────────────────────────────────
+       BADGE DEFS
+    ───────────────────────────────────────────────────────────── */
+    const BADGE_DEFS = [
+      { id:'first_read',    icon:'📖', name:'FIRST READ',      desc:'Complete any scenario',           condition: s => s.totalPlayed >= 1 },
+      { id:'w1_complete',   icon:'🔍', name:'DECODER',         desc:'Finish World 1',                  condition: s => s.w1Done },
+      { id:'w2_complete',   icon:'🌀', name:'COMBO MASTER',    desc:'Finish World 2',                  condition: s => s.w2Done },
+      { id:'w3_complete',   icon:'🌌', name:'DEPTH DIVER',     desc:'Finish World 3',                  condition: s => s.w3Done },
+      { id:'perfect_world', icon:'⭐', name:'PERFECT WORLD',   desc:'8/8 on any world',                condition: s => s.perfectWorld },
+      { id:'all_worlds',    icon:'🏆', name:'EMOTION EXPERT',  desc:'Complete all 3 worlds',           condition: s => s.w1Done && s.w2Done && s.w3Done }
     ];
 
     /* ─────────────────────────────────────────────────────────────
        STATE
     ───────────────────────────────────────────────────────────── */
-    let currentIdx  = 0;
-    let score       = 0;
-    let streak      = 0;
-    let lastCorrect = false;
-    let audioCtx    = null;
+    let currentIdx    = 0;
+    let score         = 0;
+    let streak        = 0;
+    let lastCorrect   = false;
+    let audioCtx      = null;
+    let currentWorld  = 1;
+    let currentScenarios = WORLD1_SCENARIOS;
+    let worldResults  = {};   // { worldId: { score, total, answers: [] } }
+    let comboSelected = [];   // for World 2/3 combo mechanic
+    let halfRightCount = 0;   // W2 half-right tracker
 
     /* ─────────────────────────────────────────────────────────────
-       AUDIO — Web Audio API
+       AUDIO, Web Audio API
     ───────────────────────────────────────────────────────────── */
     function getAudioCtx() {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      // iOS suspends AudioContext until a user gesture — resume it on each interaction
       if (audioCtx.state === 'suspended') audioCtx.resume();
       return audioCtx;
     }
@@ -1136,36 +1811,324 @@
           [[392,0],[523,0.1],[659,0.2]].forEach(([f,t]) =>
             playTone(f, 'sine', now+t, 0.25, 0.15, ctx));
         }
-      } catch(e) { /* audio blocked — silently skip */ }
+      } catch(e) { /* audio blocked, silently skip */ }
     }
 
     /* ─────────────────────────────────────────────────────────────
-       HOME TITLE — letter-by-letter reveal
+       STAR FIELD, scattered pixel dots on home screen
     ───────────────────────────────────────────────────────────── */
-    function animateTitle() {
-      const el = document.getElementById('home-title');
-      // "Emotion" normal, "Decoder" terracotta
-      const words = [
-        { text: 'Emotion', cls: '' },
-        { text: '\u00A0' },  // space
-        { text: 'Decoder', cls: 'terra' }
-      ];
-      el.innerHTML = '';
-      let globalDelay = 80;
-      words.forEach(w => {
-        if (w.text === '\u00A0') { el.insertAdjacentHTML('beforeend', '&nbsp;'); return; }
-        const wordSpan = document.createElement('span');
-        wordSpan.className = 'word';
-        [...w.text].forEach(ch => {
-          const span = document.createElement('span');
-          span.className = 'letter' + (w.cls ? ' ' + w.cls : '');
-          span.textContent = ch;
-          span.style.animationDelay = globalDelay + 'ms';
-          globalDelay += 55;
-          wordSpan.appendChild(span);
-        });
-        el.appendChild(wordSpan);
+    function initStarField() {
+      const field = document.getElementById('star-field');
+      if (!field) return;
+      for (let i = 0; i < 55; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'star-dot';
+        dot.style.cssText = `
+          left:${Math.random() * 100}%;
+          top:${Math.random() * 100}%;
+          opacity:${0.3 + Math.random() * 0.5};
+          width:${Math.random() > 0.8 ? 2 : 1}px;
+          height:${Math.random() > 0.8 ? 2 : 1}px;
+        `;
+        field.appendChild(dot);
+      }
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       SESSION STORAGE HELPERS
+    ───────────────────────────────────────────────────────────── */
+    function getWorldState() {
+      try {
+        return JSON.parse(sessionStorage.getItem('world_state') || '{}');
+      } catch(e) { return {}; }
+    }
+    function setWorldState(ws) {
+      try { sessionStorage.setItem('world_state', JSON.stringify(ws)); } catch(e) {}
+    }
+    function getBadges() {
+      try {
+        return JSON.parse(sessionStorage.getItem('arcade_badges') || '[]');
+      } catch(e) { return []; }
+    }
+    function setBadges(b) {
+      try { sessionStorage.setItem('arcade_badges', JSON.stringify(b)); } catch(e) {}
+    }
+    function isWorldUnlocked(id) {
+      if (id === 1) return true;
+      const ws = getWorldState();
+      if (id === 2) return ws.w1Done || false;
+      if (id === 3) return ws.w2Done || false;
+      return false;
+    }
+    function isWorldComplete(id) {
+      const ws = getWorldState();
+      if (id === 1) return ws.w1Done || false;
+      if (id === 2) return ws.w2Done || false;
+      if (id === 3) return ws.w3Done || false;
+      return false;
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       WORLD SELECT SCREEN
+    ───────────────────────────────────────────────────────────── */
+    function showWorldSelect() {
+      renderWorldMap();
+      renderBadgesRowWS();
+      // populate star field for world select
+      const wsf = document.getElementById('star-field-ws');
+      if (wsf && !wsf.hasChildNodes()) {
+        for (let i = 0; i < 40; i++) {
+          const d = document.createElement('div');
+          d.className = 'star-dot';
+          d.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;opacity:${0.2+Math.random()*0.4};width:${Math.random()>0.8?2:1}px;height:${Math.random()>0.8?2:1}px;`;
+          wsf.appendChild(d);
+        }
+      }
+      showScreen('world-select-screen');
+    }
+
+    function renderWorldMap() {
+      const container = document.getElementById('world-map');
+      if (!container) return;
+      container.innerHTML = '';
+      WORLDS.forEach((w, idx) => {
+        const unlocked = isWorldUnlocked(w.id);
+        const complete = isWorldComplete(w.id);
+        const ws = getWorldState();
+        const inProgress = (w.id === currentWorld) && !complete;
+        let statusClass, statusText;
+        if (!unlocked)     { statusClass = 's-lock';   statusText = '🔒 LOCKED'; }
+        else if (complete) { statusClass = 's-replay';  statusText = '↩ REPLAY'; }
+        else               { statusClass = 's-go';      statusText = '▶ GO'; }
+
+        let nodeClass = 'world-node';
+        if (!unlocked) nodeClass += ' locked';
+        else if (complete) nodeClass += ' complete';
+        else nodeClass += ' active-world';
+
+        const node = document.createElement('div');
+        node.className = nodeClass;
+        node.innerHTML = `
+          <div class="world-icon">${w.icon}</div>
+          <div class="world-info">
+            <div class="world-num">WORLD ${w.id}</div>
+            <div class="world-name">${w.name}</div>
+            <div class="world-desc">${w.desc}</div>
+          </div>
+          <div class="world-status ${statusClass}">${statusText}</div>
+        `;
+        if (unlocked) {
+          node.onclick = () => selectWorld(w.id);
+        }
+        container.appendChild(node);
+
+        // connector between worlds
+        if (idx < WORLDS.length - 1) {
+          const conn = document.createElement('div');
+          conn.className = 'world-connector' + (isWorldUnlocked(w.id + 1) ? ' unlocked' : '');
+          container.appendChild(conn);
+        }
       });
+    }
+
+    function renderBadgesRowWS() {
+      const row = document.getElementById('badges-row-ws');
+      if (!row) return;
+      const earned = getBadges();
+      row.innerHTML = BADGE_DEFS.map(b => `
+        <div class="badge-chip ${earned.includes(b.id) ? 'earned' : ''}">
+          <span class="badge-icon">${b.icon}</span>${b.name}
+        </div>
+      `).join('');
+    }
+
+    function selectWorld(id) {
+      if (!isWorldUnlocked(id)) return;
+      startGame(id);
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       BADGE SYSTEM
+    ───────────────────────────────────────────────────────────── */
+    function checkAndAwardBadges() {
+      const ws = getWorldState();
+      const earned = getBadges();
+      const tStats = getTotalStats();
+      const ctx = {
+        totalPlayed: tStats.totalPlayed || 0,
+        w1Done: ws.w1Done || false,
+        w2Done: ws.w2Done || false,
+        w3Done: ws.w3Done || false,
+        perfectWorld: ws.perfectWorld || false
+      };
+      const newBadges = [];
+      BADGE_DEFS.forEach(b => {
+        if (!earned.includes(b.id) && b.condition(ctx)) {
+          newBadges.push(b);
+          earned.push(b.id);
+        }
+      });
+      if (newBadges.length > 0) {
+        setBadges(earned);
+        // Show fanfare sequentially
+        let delay = 400;
+        newBadges.forEach(b => {
+          setTimeout(() => showBadgeFanfare(b), delay);
+          delay += 2800;
+        });
+      }
+    }
+
+    function showBadgeFanfare(def) {
+      const el = document.getElementById('badge-fanfare');
+      document.getElementById('fanfare-icon').textContent = def.icon;
+      document.getElementById('fanfare-name').textContent = def.name;
+      el.classList.add('show');
+      playSound('streak');
+      setTimeout(() => el.classList.remove('show'), 2400);
+    }
+
+    function getTotalStats() {
+      try {
+        return JSON.parse(sessionStorage.getItem('total_stats') || '{"totalPlayed":0}');
+      } catch(e) { return {totalPlayed:0}; }
+    }
+    function incrementTotalPlayed() {
+      const s = getTotalStats();
+      s.totalPlayed = (s.totalPlayed || 0) + 1;
+      try { sessionStorage.setItem('total_stats', JSON.stringify(s)); } catch(e) {}
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       SCENARIO DOT MAP IN HUD
+    ───────────────────────────────────────────────────────────── */
+    function renderScenarioDots() {
+      const container = document.getElementById('scenario-dots');
+      if (!container) return;
+      const total = currentScenarios.length;
+      const wr = worldResults[currentWorld] || { answers: [] };
+      container.innerHTML = '';
+      for (let i = 0; i < total; i++) {
+        const dot = document.createElement('div');
+        dot.className = 's-dot';
+        const ans = wr.answers[i];
+        if (ans === true)  dot.classList.add('done');
+        else if (ans === false) dot.classList.add('wrong');
+        else if (i === currentIdx) dot.classList.add('current');
+        container.appendChild(dot);
+      }
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       UNLOCK BANNER (mid-game notification)
+    ───────────────────────────────────────────────────────────── */
+    let unlockBannerTimer;
+    function showUnlockBanner(msg) {
+      const el = document.getElementById('unlock-banner');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(unlockBannerTimer);
+      unlockBannerTimer = setTimeout(() => el.classList.remove('show'), 2600);
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       WORLD UNLOCK OVERLAY (dramatic World 3 reveal)
+    ───────────────────────────────────────────────────────────── */
+    let pendingWorldUnlockCallback = null;
+    function showWorldUnlockOverlay(worldDef, callback) {
+      document.getElementById('unlock-world-icon').textContent  = worldDef.icon;
+      document.getElementById('unlock-world-title').textContent = `WORLD ${worldDef.id} UNLOCKED!`;
+      document.getElementById('unlock-world-sub').textContent   = worldDef.desc;
+      pendingWorldUnlockCallback = callback;
+      const el = document.getElementById('world-unlock-overlay');
+      el.classList.add('show');
+      playSound('fanfare');
+      launchConfetti();
+    }
+    function dismissWorldUnlock() {
+      document.getElementById('world-unlock-overlay').classList.remove('show');
+      if (pendingWorldUnlockCallback) {
+        pendingWorldUnlockCallback();
+        pendingWorldUnlockCallback = null;
+      }
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       COMBO MECHANIC, toggle selection + submit
+    ───────────────────────────────────────────────────────────── */
+    function handleComboSelect(id) {
+      const btn = document.getElementById('combo-' + id);
+      if (!btn || btn.disabled) return;
+      const idx = comboSelected.indexOf(id);
+      if (idx > -1) {
+        comboSelected.splice(idx, 1);
+        btn.classList.remove('selected');
+      } else {
+        if (comboSelected.length >= 2) return; // max 2
+        comboSelected.push(id);
+        btn.classList.add('selected');
+      }
+      const counter = document.getElementById('combo-counter');
+      if (counter) {
+        counter.textContent = comboSelected.length === 0 ? '' :
+          comboSelected.length === 1 ? '1 SELECTED, PICK 1 MORE' : '2 SELECTED, READY!';
+      }
+      const submitBtn = document.getElementById('combo-submit');
+      if (submitBtn) submitBtn.disabled = comboSelected.length !== 2;
+    }
+
+    function handleComboSubmit() {
+      const s = currentScenarios[currentIdx];
+      if (!s || !s.isCombo) return;
+      // disable all
+      document.querySelectorAll('.combo-btn').forEach(b => b.disabled = true);
+      document.getElementById('combo-submit').disabled = true;
+
+      const correctSet = new Set(s.correct);
+      const selectedSet = new Set(comboSelected);
+      const bothCorrect = s.correct.every(c => selectedSet.has(c)) && comboSelected.length === 2;
+      const oneCorrect  = !bothCorrect && s.correct.some(c => selectedSet.has(c));
+
+      lastCorrect = bothCorrect;
+      const halfRight = oneCorrect;
+
+      if (bothCorrect) {
+        score++;
+        streak++;
+        playSound('correct');
+        flashScreen('flash-correct');
+        popScore();
+        showToast('🎯 PERFECT COMBO!');
+        if (streak >= 2) setTimeout(() => { playSound('streak'); showToast(`🔥 ${streak} IN A ROW!`); }, 350);
+      } else if (halfRight) {
+        halfRightCount++;
+        streak = 0;
+        playSound('wrong');
+        flashScreen('flash-wrong');
+        showToast('⚡ HALF RIGHT...');
+        if (halfRightCount === 3) {
+          showUnlockBanner('🔓 BONUS INSIGHT: You\'re getting closer!');
+        }
+      } else {
+        streak = 0;
+        playSound('wrong');
+        flashScreen('flash-wrong');
+        showToast('✗ KEEP TRYING!');
+      }
+
+      // highlight buttons
+      document.querySelectorAll('.combo-btn').forEach(b => {
+        const id = b.dataset.id;
+        if (correctSet.has(id)) b.classList.add('correct-combo');
+        else if (selectedSet.has(id)) b.classList.add('wrong-combo');
+      });
+
+      incrementTotalPlayed();
+      if (!worldResults[currentWorld]) worldResults[currentWorld] = { score: 0, answers: [] };
+      worldResults[currentWorld].answers[currentIdx] = bothCorrect;
+      if (bothCorrect) worldResults[currentWorld].score = (worldResults[currentWorld].score || 0) + 1;
+
+      setTimeout(() => showReveal(), 1100);
     }
 
     /* ─────────────────────────────────────────────────────────────
@@ -1238,22 +2201,17 @@
       el.classList.add('typing');
       let i = 0;
       let done = false;
-
-      function finish() {
+      const finish = () => {
         if (done) return;
         done = true;
         el.textContent = text;
         el.classList.remove('typing');
-        el.removeEventListener('click',  skip);
-        el.removeEventListener('touchstart', skip);
+        el.removeEventListener('click', finish);
+        el.removeEventListener('touchstart', finish);
         if (onDone) onDone();
-      }
-
-      // Tap / click anywhere on the text box to skip straight to the end
-      function skip(e) { e.preventDefault(); finish(); }
-      el.addEventListener('click',      skip, { once: true });
-      el.addEventListener('touchstart', skip, { passive: false, once: true });
-
+      };
+      el.addEventListener('click', finish);
+      el.addEventListener('touchstart', finish, { passive: true });
       const tick = () => {
         if (done) return;
         if (i < text.length) {
@@ -1269,10 +2227,21 @@
     /* ─────────────────────────────────────────────────────────────
        START GAME
     ───────────────────────────────────────────────────────────── */
-    function startGame() {
-      currentIdx = 0;
-      score      = 0;
-      streak     = 0;
+    function startGame(worldId) {
+      worldId = worldId || 1;
+      currentWorld     = worldId;
+      currentScenarios = WORLDS[worldId - 1].scenarios;
+      currentIdx       = 0;
+      score            = 0;
+      streak           = 0;
+      halfRightCount   = 0;
+      comboSelected    = [];
+      if (!worldResults[worldId]) worldResults[worldId] = { score: 0, answers: [] };
+      worldResults[worldId] = { score: 0, answers: [] };
+
+      const hudLabel = document.getElementById('hud-world-label');
+      if (hudLabel) hudLabel.textContent = `WORLD ${worldId} · ${WORLDS[worldId-1].name}`;
+
       playSound('start');
       renderScenario();
       showScreen('game-screen');
@@ -1282,14 +2251,15 @@
        RENDER SCENARIO
     ───────────────────────────────────────────────────────────── */
     function renderScenario() {
-      const s      = SCENARIOS[currentIdx];
-      const pct    = (currentIdx / 8) * 100;
+      const s      = currentScenarios[currentIdx];
+      const total  = currentScenarios.length;
+      const pct    = (currentIdx / total) * 100;
       const fill   = document.getElementById('progress-fill');
       const streak_badge = document.getElementById('streak-badge');
 
       fill.style.width = pct + '%';
-      document.getElementById('progress-text').textContent = `Scenario ${currentIdx + 1} of 8`;
-      document.getElementById('score-live').textContent    = `Score: ${score}`;
+      document.getElementById('score-live').textContent = `★ ${score}`;
+      renderScenarioDots();
 
       if (streak >= 2) {
         streak_badge.textContent = `🔥 ×${streak}`;
@@ -1298,47 +2268,91 @@
         streak_badge.classList.remove('visible');
       }
 
-      const shuffled = shuffle([...s.choices]);
+      const caseNum = String(s.num).padStart(2, '0');
       let headerExtra = s.isTwist
-        ? `<span class="twist-badge">⚡ Plot Twist Finale</span>` : '';
+        ? `<span class="twist-badge">⚡ Plot Twist Finale</span>`
+        : (s.isCombo ? `<span class="twist-badge">🌀 COMBO MODE</span>` : '');
 
-      const choicesHTML = shuffled.map(c => `
-        <button class="choice-btn" id="choice-${c.id}" onclick="handleChoice('${c.id}','${s.correct}')">
-          <span class="choice-emoji">${c.emoji}</span>
-          <span>${c.label}</span>
-        </button>`).join('');
+      let choicesSection;
+      if (s.isCombo) {
+        comboSelected = [];
+        const LETTERS = ['A','B','C','D','E','F'];
+        const comboHTML = s.comboChoices.map((c, i) => `
+          <button class="combo-btn" id="combo-${c.id}" data-id="${c.id}" onclick="handleComboSelect('${c.id}')">
+            <div class="combo-letter">${LETTERS[i]}</div>
+            <div class="combo-emoji">${c.emoji}</div>
+            <div class="combo-label">${c.label}</div>
+          </button>`).join('');
+        choicesSection = `
+          <div class="combo-instruction">🌀 Pick the TWO emotions at play</div>
+          <div class="combo-counter" id="combo-counter"></div>
+          <div class="combo-grid" id="combo-grid">${comboHTML}</div>
+          <button class="combo-submit-btn" id="combo-submit" onclick="handleComboSubmit()" disabled>LOCK IN COMBO ▶</button>
+        `;
+      } else {
+        const LETTERS = ['A','B','C','D'];
+        const shuffled = shuffle([...s.choices]);
+        choicesSection = `<div class="choices" id="choices-grid">` +
+          shuffled.map((c, i) => `
+            <button class="choice-btn" id="choice-${c.id}" onclick="handleChoice('${c.id}','${s.correct}')">
+              <span class="choice-letter">${LETTERS[i]}</span>
+              <span class="choice-emoji">${c.emoji}</span>
+              <span class="choice-label-text">${c.label}</span>
+            </button>`).join('') + `</div>`;
+      }
+
+      const questionLabel = s.isCombo
+        ? `🌀 What TWO emotions is ${s.name} REALLY feeling?`
+        : `🔍 What is ${s.name} REALLY feeling?`;
 
       document.getElementById('scenario-card').innerHTML = `
         <div class="scenario-header">
-          <span class="scenario-num">Scenario ${s.num}</span>
+          <span class="scenario-num">CASE #${caseNum}</span>
           <span class="scenario-name">${s.name}</span>
           ${headerExtra}
         </div>
-        <div class="scenario-text" id="scenario-text"></div>
-        <p class="skip-hint" id="skip-hint">tap to skip ↓</p>
-        <div class="question-label" id="question-label">🔍 What is ${s.name} REALLY feeling?</div>
-        <div class="choices" id="choices-grid">${choicesHTML}</div>
+        <div class="scenario-card-body">
+          <div class="scenario-text" id="scenario-text"></div>
+          <div class="question-label" id="question-label">${questionLabel}</div>
+          ${choicesSection}
+        </div>
       `;
 
-      // Start typewriter then stagger-reveal choices
       const textEl = document.getElementById('scenario-text');
       typewrite(textEl, s.text, 14, () => {
-        const hint = document.getElementById('skip-hint');
-        if (hint) hint.style.display = 'none';
         document.getElementById('question-label').classList.add('visible');
-        staggerChoices();
+        if (s.isCombo) staggerComboBtns();
+        else staggerChoices();
       });
     }
 
     function staggerChoices() {
       const btns = document.querySelectorAll('.choice-btn');
-      btns.forEach((btn, i) => {
-        setTimeout(() => btn.classList.add('revealed'), i * 80);
-      });
+      btns.forEach((btn, i) => setTimeout(() => btn.classList.add('revealed'), i * 80));
+    }
+
+    function staggerComboBtns() {
+      const btns = document.querySelectorAll('.combo-btn');
+      btns.forEach((btn, i) => setTimeout(() => btn.classList.add('revealed'), i * 60));
     }
 
     /* ─────────────────────────────────────────────────────────────
-       HANDLE CHOICE
+       SCORE POPUP (+1 floats up from score badge)
+    ───────────────────────────────────────────────────────────── */
+    function popScore() {
+      const el = document.getElementById('score-live');
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const popup = document.createElement('div');
+      popup.className = 'score-popup';
+      popup.textContent = '+1';
+      popup.style.cssText = `left:${rect.left + rect.width / 2}px;top:${rect.top}px;`;
+      document.body.appendChild(popup);
+      setTimeout(() => popup.remove(), 950);
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       HANDLE CHOICE (single-pick worlds)
     ───────────────────────────────────────────────────────────── */
     function handleChoice(chosen, correct) {
       document.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
@@ -1351,6 +2365,8 @@
         flashScreen('flash-correct');
         const btn = document.getElementById('choice-' + chosen);
         if (btn) burstParticles(btn);
+        document.getElementById('score-live').textContent = `★ ${score}`;
+        popScore();
         if (streak >= 2) {
           setTimeout(() => {
             playSound('streak');
@@ -1363,7 +2379,7 @@
         streak = 0;
         playSound('wrong');
         flashScreen('flash-wrong');
-        showToast('Not quite — see the reveal!');
+        showToast('Not quite, see the reveal!');
       }
 
       const chosenBtn  = document.getElementById('choice-' + chosen);
@@ -1373,6 +2389,11 @@
         setTimeout(() => correctBtn.classList.add('correct'), 430);
       }
 
+      incrementTotalPlayed();
+      if (!worldResults[currentWorld]) worldResults[currentWorld] = { score: 0, answers: [] };
+      worldResults[currentWorld].answers[currentIdx] = lastCorrect;
+      if (lastCorrect) worldResults[currentWorld].score = (worldResults[currentWorld].score || 0) + 1;
+
       setTimeout(() => showReveal(), 1000);
     }
 
@@ -1380,31 +2401,57 @@
        REVEAL SCREEN
     ───────────────────────────────────────────────────────────── */
     function showReveal() {
-      const s = SCENARIOS[currentIdx];
-      const nextLabel = currentIdx < SCENARIOS.length - 1 ? 'Next Scenario →' : 'See My Results →';
+      const s = currentScenarios[currentIdx];
+      const isLast = currentIdx >= currentScenarios.length - 1;
 
-      const banner = lastCorrect
-        ? `<div class="result-banner correct-banner">✅ &nbsp;You cracked it!</div>`
-        : `<div class="result-banner wrong-banner">🤔 &nbsp;Not quite — here's what's really going on.</div>`;
+      let iconBox, banner;
+      if (s.isCombo) {
+        // determine if half-right for this specific reveal
+        const selectedSet = new Set(comboSelected);
+        const bothCorrect = s.correct.every(c => selectedSet.has(c)) && comboSelected.length === 2;
+        const oneCorrect  = !bothCorrect && s.correct.some(c => selectedSet.has(c));
+        if (bothCorrect) {
+          iconBox = `<div class="result-icon-box correct-icon">✅</div>`;
+          banner  = `${iconBox}<div class="result-banner correct-banner">🎯 PERFECT COMBO!</div>`;
+        } else if (oneCorrect) {
+          iconBox = `<div class="result-icon-box" style="border:2px solid var(--yellow);background:rgba(255,214,10,0.1);box-shadow:0 0 16px rgba(255,214,10,0.3)">⚡</div>`;
+          banner  = `${iconBox}<div class="result-banner" style="color:var(--yellow)">⚡ HALF RIGHT...</div>`;
+        } else {
+          iconBox = `<div class="result-icon-box wrong-icon">✗</div>`;
+          banner  = `${iconBox}<div class="result-banner wrong-banner">✗ KEEP TRYING!</div>`;
+        }
+      } else {
+        iconBox = lastCorrect
+          ? `<div class="result-icon-box correct-icon">✅</div>`
+          : `<div class="result-icon-box wrong-icon">✗</div>`;
+        banner = lastCorrect
+          ? `${iconBox}<div class="result-banner correct-banner">★ YOU GOT IT! ★</div>`
+          : `${iconBox}<div class="result-banner wrong-banner">✗ NOT QUITE...</div>`;
+      }
 
       let twistSection = '';
       if (s.isTwist) {
+        const twistMsg = s.world === 3
+          ? "The whole class felt something complex at once, and the students who stayed after were showing it quietly. Public celebration and private grief can exist simultaneously."
+          : "Jordan seemed like the most confident person in the room, but underneath all that warmth and enthusiasm was someone desperately hoping to be accepted. Sometimes the biggest smiles carry the heaviest worries.";
         twistSection = `
           <div class="twist-reveal">
             <div class="twist-stars">★ ★ ★</div>
             <div class="twist-headline">🎭 The Plot Twist</div>
-            <p>Jordan seemed like the most confident person in the room — but underneath all that warmth and enthusiasm was someone desperately hoping to be accepted. Sometimes the biggest smiles carry the heaviest worries.</p>
+            <p>${twistMsg}</p>
           </div>`;
       }
 
+      const nextBtnLabel = isLast ? 'See Results →' : 'Next Scenario ▶';
+
       document.getElementById('reveal-card').innerHTML = `
         ${banner}
-        <div class="true-emotion-label">The True Emotion</div>
+        <div class="true-emotion-label">▸ TRUE EMOTION</div>
         <div class="true-emotion">${s.trueEmotion}</div>
         ${twistSection}
-        <div class="explanation">${s.explanation}</div>
-        <div class="did-you-know"><strong>💡 Did You Know?</strong>${s.didYouKnow}</div>
-        <button class="btn btn-next" onclick="nextScenario()">${nextLabel}</button>
+        <div class="explanation" data-label="▸ WHY ${s.trueEmotion}?">${s.explanation}</div>
+        <div class="did-you-know"><strong>💡 DID YOU KNOW?</strong>${s.didYouKnow}</div>
+        <button class="btn btn-next" onclick="nextScenario()">${nextBtnLabel}</button>
       `;
 
       const card = document.getElementById('reveal-card');
@@ -1412,11 +2459,10 @@
       card.classList.add(lastCorrect ? 'correct-card' : 'wrong-card');
 
       showScreen('reveal-screen');
-
-      // On small screens the Next button may be below the fold — gently scroll to it
+      // On mobile, scroll the Next button into view after animations settle
       setTimeout(() => {
-        const btn = document.querySelector('#reveal-card .btn-next');
-        if (btn) btn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        const nextBtn = document.querySelector('#reveal-card .btn-next');
+        if (nextBtn) nextBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }, 900);
     }
 
@@ -1425,9 +2471,42 @@
     ───────────────────────────────────────────────────────────── */
     function nextScenario() {
       currentIdx++;
-      if (currentIdx < SCENARIOS.length) {
+      if (currentIdx < currentScenarios.length) {
         renderScenario();
         showScreen('game-screen');
+      } else {
+        finishWorld();
+      }
+    }
+
+    function finishWorld() {
+      const ws = getWorldState();
+      const wr = worldResults[currentWorld] || { score: 0, answers: [] };
+      const total = currentScenarios.length;
+      const worldScore = wr.score || 0;
+
+      // Mark world complete
+      if (currentWorld === 1) ws.w1Done = true;
+      if (currentWorld === 2) ws.w2Done = true;
+      if (currentWorld === 3) ws.w3Done = true;
+      if (worldScore === total) ws.perfectWorld = true;
+      setWorldState(ws);
+
+      // Check if a new world was just unlocked
+      const nextWorldId = currentWorld + 1;
+      const nextWorld = WORLDS.find(w => w.id === nextWorldId);
+      const wasUnlocked = isWorldUnlocked(nextWorldId);
+      // Re-save so the unlock is readable
+      setWorldState(ws);
+      const nowUnlocked = isWorldUnlocked(nextWorldId);
+
+      checkAndAwardBadges();
+
+      if (nextWorld && !wasUnlocked && nowUnlocked) {
+        // Dramatic unlock, go to results after dismissing overlay
+        setTimeout(() => {
+          showWorldUnlockOverlay(nextWorld, () => showResults());
+        }, 600);
       } else {
         showResults();
       }
@@ -1437,43 +2516,59 @@
        RESULTS SCREEN
     ───────────────────────────────────────────────────────────── */
     function showResults() {
+      const total = currentScenarios.length;
+      const pct = score / total;
       let title, message, topEmoji;
-      if (score <= 3) {
+      if (pct < 0.5) {
         topEmoji = '🌱'; title = 'Keep Practicing!';
-        message  = 'Emotions can be tricky to spot — especially when people hide them. The more you practice, the better you\'ll get.';
-      } else if (score <= 6) {
+        message  = 'Emotions can be tricky, especially when people hide them. Each attempt builds your radar.';
+      } else if (pct < 0.875) {
         topEmoji = '🔍'; title = 'Nice Work!';
-        message  = 'You\'re building your emotion radar. You can already see past the surface on some tough ones!';
+        message  = "You're building your emotion radar. You can already see past the surface on some tough ones!";
       } else {
         topEmoji = '🏆'; title = 'Emotion Expert!';
-        message  = 'You can see past the surface like a pro. That\'s a superpower when it comes to understanding people.';
+        message  = "You can see past the surface like a pro. That's a superpower when it comes to understanding people.";
       }
 
+      // Earned badges this session
+      const earnedIds = getBadges();
+      const earnedDefs = BADGE_DEFS.filter(b => earnedIds.includes(b.id));
+      const badgesSection = earnedDefs.length > 0 ? `
+        <div class="results-badges">
+          <div class="results-badges-label">🏅 BADGES EARNED</div>
+          <div class="results-badges-row">
+            ${earnedDefs.map(b => `<div class="badge-chip earned"><span class="badge-icon">${b.icon}</span>${b.name}</div>`).join('')}
+          </div>
+        </div>` : '';
+
+      const worldInfo = WORLDS[currentWorld - 1];
+      const nextWorldAvail = isWorldUnlocked(currentWorld + 1);
+
       document.getElementById('results-card').innerHTML = `
-        <div style="font-size:3rem;margin-bottom:8px">${topEmoji}</div>
+        <div style="font-size:2.6rem;margin-bottom:10px">${topEmoji}</div>
+        <div style="font-family:'Press Start 2P',monospace;font-size:0.38rem;color:var(--cyan);letter-spacing:0.1em;margin-bottom:8px">WORLD ${currentWorld} · ${worldInfo.name}</div>
         <div class="score-circle">
           <span class="score-num" id="score-count">0</span>
-          <span class="score-denom">out of 8</span>
+          <span class="score-denom">/ ${total}</span>
         </div>
         <h2>${title}</h2>
         <p class="score-message">${message}</p>
+        ${badgesSection}
         <div class="reflection-box">
-          <div class="reflection-label">🪞 Reflection Moment</div>
+          <div class="reflection-label">🪞 REFLECTION MOMENT</div>
           <p>Think of a time you felt one thing but showed something completely different on the outside. What was really going on for you?</p>
         </div>
-        <button class="btn btn-play-again" onclick="startGame()">🔄 &nbsp;Play Again</button>
-        <p class="tpt-note">Free resource from TheStaffLounge26 — find more SEL activities on TPT 🌿</p>
+        <button class="btn btn-play-again" onclick="startGame(${currentWorld})">↩ RETRY WORLD ${currentWorld}</button>
+        <button class="btn btn-map" onclick="showWorldSelect()">◀ WORLD SELECT</button>
+        <p class="tpt-note">FREE FROM THESTAFF LOUNGE26 · TPT</p>
       `;
 
       showScreen('results-screen');
-
-      // Animated score count-up
       setTimeout(() => animateCount('score-count', score, 100), 600);
 
-      // Sound + confetti
-      if (score >= 7) {
+      if (pct >= 0.875) {
         setTimeout(() => { playSound('fanfare'); launchConfetti(); }, 500);
-      } else if (score >= 4) {
+      } else if (pct >= 0.5) {
         setTimeout(() => playSound('fanfare'), 500);
       }
     }
@@ -1492,7 +2587,7 @@
        FULL-PAGE CONFETTI CANNON
     ───────────────────────────────────────────────────────────── */
     function launchConfetti() {
-      const colors = ['#8FAF8C','#C4714F','#d4a843','#7b5ea7','#4caf50','#FAF3E0','#e05252'];
+      const colors = ['#F72585','#4CC9F0','#FFD60A','#7C3AED','#06D6A0','#FFFFFE','#2D1B69'];
       for (let i = 0; i < 70; i++) {
         setTimeout(() => {
           const el = document.createElement('div');
@@ -1531,7 +2626,7 @@
     /* ─────────────────────────────────────────────────────────────
        INIT
     ───────────────────────────────────────────────────────────── */
-    animateTitle();
+    initStarField();
   </script>
 </body>
 </html>
