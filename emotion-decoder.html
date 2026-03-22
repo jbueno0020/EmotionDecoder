@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Emotion Decoder — TheStaffLounge26</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -27,12 +27,19 @@
       --purple:     #7b5ea7;
     }
 
-    html, body {
+    html {
+      height: 100%;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+    body {
       height: 100%;
       font-family: 'Nunito', sans-serif;
       background: var(--cream);
       color: var(--charcoal);
       overflow-x: hidden;
+      overscroll-behavior: none;
+      -webkit-font-smoothing: antialiased;
     }
 
     /* ── Dot grid background ──────────────────────────────────────── */
@@ -94,15 +101,26 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 20px 16px 64px;
+      /* flex-start prevents top-clipping when content overflows on iOS */
+      justify-content: flex-start;
+      padding:
+        max(20px, env(safe-area-inset-top))
+        max(16px, env(safe-area-inset-right))
+        max(64px, calc(env(safe-area-inset-bottom) + 28px))
+        max(16px, env(safe-area-inset-left));
       z-index: 1;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.4s ease, transform 0.4s ease;
       transform: translateY(14px);
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
+    /* Screens whose content reliably fits — keep vertically centered */
+    #home-screen    { justify-content: center; }
+    #results-screen { justify-content: center; }
+    /* Scrollable screens get a gap between their stacked children */
+    #game-screen, #reveal-screen { gap: 14px; }
     .screen.active {
       opacity: 1;
       pointer-events: all;
@@ -117,7 +135,7 @@
     /* ── Watermark ────────────────────────────────────────────────── */
     .watermark {
       position: fixed;
-      bottom: 10px;
+      bottom: max(10px, env(safe-area-inset-bottom));
       left: 0; right: 0;
       text-align: center;
       font-size: 0.68rem;
@@ -273,9 +291,17 @@
       cursor: pointer;
       transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
       letter-spacing: 0.03em;
+      /* Touch-device essentials */
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      min-height: 48px;
     }
-    .btn:hover  { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.18); }
-    .btn:active { transform: translateY(0);    box-shadow: none; }
+    @media (hover: hover) {
+      .btn:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.18); }
+    }
+    .btn:active { transform: scale(0.97); box-shadow: none; }
 
     .btn-primary {
       background: var(--terra);
@@ -466,6 +492,25 @@
       animation: blink 0.7s step-end infinite;
     }
     @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+    /* "Tap to skip" hint that only shows on touch devices during typewrite */
+    .scenario-text.typing {
+      cursor: pointer;
+      position: relative;
+    }
+    .skip-hint {
+      display: none;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: rgba(61,61,61,0.38);
+      letter-spacing: 0.05em;
+      text-align: right;
+      margin-top: 4px;
+      margin-bottom: -8px;
+    }
+    @media (hover: none) {
+      /* Only show skip hint on touch devices */
+      .skip-hint { display: block; }
+    }
 
     .question-label {
       font-size: 0.83rem;
@@ -502,17 +547,32 @@
       transform: translateY(14px);
       position: relative;
       overflow: hidden;
+      /* Touch essentials */
+      min-height: 56px;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
     }
     .choice-btn.revealed {
       opacity: 1;
       transform: translateY(0);
       transition: border-color 0.18s, background 0.18s, transform 0.3s cubic-bezier(0.34,1.2,0.64,1), box-shadow 0.15s, opacity 0.3s ease;
     }
-    .choice-btn:hover:not(:disabled) {
+    /* Only apply hover on real pointer devices (not touch) */
+    @media (hover: hover) {
+      .choice-btn:hover:not(:disabled) {
+        border-color: var(--sage);
+        background: #edf5ec;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 18px rgba(143,175,140,0.3);
+      }
+    }
+    /* Touch active feedback — works on all devices */
+    .choice-btn:active:not(:disabled) {
+      transform: scale(0.96);
       border-color: var(--sage);
       background: #edf5ec;
-      transform: translateY(-3px);
-      box-shadow: 0 6px 18px rgba(143,175,140,0.3);
     }
     .choice-btn:disabled { cursor: default; }
     .choice-emoji { font-size: 1.35rem; flex-shrink: 0; }
@@ -785,13 +845,49 @@
     }
 
     /* ── Responsive ───────────────────────────────────────────────── */
+
+    /* Phone portrait (≤ 480px) */
     @media (max-width: 480px) {
-      .home-card, .scenario-card, .reveal-card, .results-card { padding: 22px 16px; }
-      .home-card h1 { font-size: 2rem; }
-      .true-emotion  { font-size: 1.6rem; }
-      .score-circle  { width: 96px; height: 96px; }
-      .score-num     { font-size: 2rem; }
-      .results-card  { padding: 30px 18px 28px; }
+      .home-card, .scenario-card, .reveal-card, .results-card { padding: 20px 14px; }
+      .home-card h1       { font-size: 2rem; }
+      .true-emotion       { font-size: 1.55rem; }
+      .score-circle       { width: 96px; height: 96px; }
+      .score-num          { font-size: 2rem; }
+      .results-card       { padding: 28px 16px 24px; }
+      .results-card h2    { font-size: 1.55rem; }
+      .pixel-icon         { font-size: 2.8rem; }
+      .subtitle           { font-size: 0.97rem; }
+      /* Single-column choices on phones */
+      .choices            { grid-template-columns: 1fr; gap: 8px; }
+      /* Compact progress area */
+      .progress-wrap      { margin-bottom: 10px; }
+      /* Tighter explanation/DYK on small screens */
+      .explanation, .did-you-know { font-size: 0.92rem; }
+      /* Bigger tap area on small phones */
+      .choice-btn         { min-height: 60px; font-size: 1rem; }
+      /* Home card: reduce padding so it fits without scrolling */
+      .home-card          { padding: 28px 18px 24px; }
+      .instructions       { font-size: 0.9rem; padding: 12px 14px; }
+      .casel-badge        { font-size: 0.72rem; }
+    }
+
+    /* Tablet / iPad portrait (481px – 768px) */
+    @media (min-width: 481px) and (max-width: 768px) {
+      .choices { grid-template-columns: 1fr 1fr; }
+      .choice-btn { min-height: 58px; }
+      .home-card, .scenario-card, .reveal-card, .results-card {
+        max-width: 90vw;
+      }
+    }
+
+    /* Tablet landscape / small desktop (769px +) */
+    @media (min-width: 769px) {
+      .choice-btn { min-height: 52px; }
+    }
+
+    /* Touch device utility: remove shimmer bg animation that can lag on low-end devices */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
     }
   </style>
 </head>
@@ -827,8 +923,7 @@
       <div class="casel-badge">
         <span>🌱</span> Self-Awareness + Social Awareness
       </div>
-      <br />
-      <button class="btn btn-primary" onclick="startGame()">▶ &nbsp;Start Game</button>
+      <button class="btn btn-primary" onclick="startGame()" style="margin-top:20px">▶ &nbsp;Start Game</button>
     </div>
   </div>
 
@@ -1002,6 +1097,8 @@
     ───────────────────────────────────────────────────────────── */
     function getAudioCtx() {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      // iOS suspends AudioContext until a user gesture — resume it on each interaction
+      if (audioCtx.state === 'suspended') audioCtx.resume();
       return audioCtx;
     }
 
@@ -1140,13 +1237,30 @@
       el.textContent = '';
       el.classList.add('typing');
       let i = 0;
+      let done = false;
+
+      function finish() {
+        if (done) return;
+        done = true;
+        el.textContent = text;
+        el.classList.remove('typing');
+        el.removeEventListener('click',  skip);
+        el.removeEventListener('touchstart', skip);
+        if (onDone) onDone();
+      }
+
+      // Tap / click anywhere on the text box to skip straight to the end
+      function skip(e) { e.preventDefault(); finish(); }
+      el.addEventListener('click',      skip, { once: true });
+      el.addEventListener('touchstart', skip, { passive: false, once: true });
+
       const tick = () => {
+        if (done) return;
         if (i < text.length) {
           el.textContent += text[i++];
           setTimeout(tick, speed);
         } else {
-          el.classList.remove('typing');
-          if (onDone) onDone();
+          finish();
         }
       };
       tick();
@@ -1201,6 +1315,7 @@
           ${headerExtra}
         </div>
         <div class="scenario-text" id="scenario-text"></div>
+        <p class="skip-hint" id="skip-hint">tap to skip ↓</p>
         <div class="question-label" id="question-label">🔍 What is ${s.name} REALLY feeling?</div>
         <div class="choices" id="choices-grid">${choicesHTML}</div>
       `;
@@ -1208,6 +1323,8 @@
       // Start typewriter then stagger-reveal choices
       const textEl = document.getElementById('scenario-text');
       typewrite(textEl, s.text, 14, () => {
+        const hint = document.getElementById('skip-hint');
+        if (hint) hint.style.display = 'none';
         document.getElementById('question-label').classList.add('visible');
         staggerChoices();
       });
@@ -1295,6 +1412,12 @@
       card.classList.add(lastCorrect ? 'correct-card' : 'wrong-card');
 
       showScreen('reveal-screen');
+
+      // On small screens the Next button may be below the fold — gently scroll to it
+      setTimeout(() => {
+        const btn = document.querySelector('#reveal-card .btn-next');
+        if (btn) btn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 900);
     }
 
     /* ─────────────────────────────────────────────────────────────
