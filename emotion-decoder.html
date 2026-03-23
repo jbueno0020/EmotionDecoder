@@ -69,11 +69,11 @@
       100% { background: rgba(6,214,160,0);     opacity: 0; }
     }
     @keyframes flashWrong {
-      0%   { background: rgba(247,37,133,0.72); opacity: 1; }
-      14%  { background: rgba(247,37,133,0.05); opacity: 0.15; }
-      30%  { background: rgba(247,37,133,0.65); opacity: 1; }
-      55%  { background: rgba(247,37,133,0.28); opacity: 0.65; }
-      100% { background: rgba(247,37,133,0);   opacity: 0; }
+      0%   { background: rgba(220,38,38,0.82); opacity: 1; }
+      14%  { background: rgba(220,38,38,0.05); opacity: 0.15; }
+      30%  { background: rgba(220,38,38,0.75); opacity: 1; }
+      55%  { background: rgba(220,38,38,0.32); opacity: 0.7; }
+      100% { background: rgba(220,38,38,0);   opacity: 0; }
     }
 
     /* ── Toast notification ───────────────────────────────────────── */
@@ -673,6 +673,32 @@
       100% { transform: translate(var(--tx), var(--ty)) scale(0.2) rotate(var(--rot)); opacity: 0; }
     }
 
+    /* Spiral particles — correct answer (wrapper rotates, inner radiates outward) */
+    .spiral-wrapper {
+      position: fixed;
+      pointer-events: none;
+      z-index: 851;
+      width: 0; height: 0;
+      transform-origin: 0 0;
+      animation: spiralRotate var(--dur, 1.1s) ease-out forwards;
+    }
+    .spiral-inner {
+      position: absolute;
+      transform-origin: center center;
+      animation: spiralRadiate var(--dur, 1.1s) ease-out forwards;
+      white-space: nowrap;
+      line-height: 1;
+    }
+    @keyframes spiralRotate {
+      from { transform: rotate(var(--from-angle, 0deg)); }
+      to   { transform: rotate(var(--to-angle, 540deg)); }
+    }
+    @keyframes spiralRadiate {
+      0%   { transform: translate(0, 0) scale(0.3); opacity: 1; }
+      60%  { opacity: 1; }
+      100% { transform: translate(var(--radius, 100px), 0) scale(1.1); opacity: 0; }
+    }
+
     /* Expanding ring on correct answer */
     .correct-ring {
       position: fixed;
@@ -735,10 +761,10 @@
       100% { opacity: 0; }
     }
     @keyframes overlayWrongFade {
-      0%   { opacity: 0; background: rgba(247,37,133,0);    }
-      7%   { opacity: 1; background: rgba(247,37,133,0.75); }
-      30%  {             background: rgba(80,0,20,0.65);    }
-      72%  { opacity: 1; background: rgba(60,0,20,0.4);     }
+      0%   { opacity: 0; background: rgba(220,38,38,0);    }
+      7%   { opacity: 1; background: rgba(220,38,38,0.75); }
+      30%  {             background: rgba(120,0,0,0.65);   }
+      72%  { opacity: 1; background: rgba(80,0,0,0.4);     }
       100% { opacity: 0; }
     }
     @keyframes overlayShake {
@@ -2447,7 +2473,7 @@
         playSound('correct');
         animateCorrectButton(submitBtn);
         showAnswerOverlay('correct');
-        if (submitBtn) burstParticles(submitBtn);
+        if (submitBtn) spiralParticles(submitBtn);
         popScore();
         setTimeout(() => showToast('🎯 PERFECT COMBO!'), 400);
         if (streak >= 2) setTimeout(() => { playSound('streak'); showToast(`🔥 ${streak} IN A ROW!`); }, 700);
@@ -2545,6 +2571,43 @@
         el.style.cssText = `left:${cx}px;top:${cy}px;--tx:${tx}px;--ty:${ty}px;--rot:${rot};animation-duration:${0.85+Math.random()*0.4}s;`;
         document.body.appendChild(el);
         setTimeout(() => el.remove(), 1400);
+      }
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       SPIRAL PARTICLE BURST from a button element (correct answers)
+    ───────────────────────────────────────────────────────────── */
+    const SPIRAL_EMOJIS = ['⭐','🌟','✨','💫','🎉','🎊','💛','💚','⚡','🌈','🎇','🎆'];
+    function spiralParticles(btn) {
+      const rect = btn.getBoundingClientRect();
+      const cx = rect.left + rect.width  / 2;
+      const cy = rect.top  + rect.height / 2;
+      const count = 18;
+
+      for (let i = 0; i < count; i++) {
+        const startAngle = (i / count) * 360;
+        const toAngle    = startAngle + 450 + Math.random() * 210; // spiral 450-660 extra degrees
+        const radius     = 70 + Math.random() * 90;
+        const dur        = (0.9 + Math.random() * 0.5).toFixed(2);
+        const fontSize   = (1.0 + Math.random() * 0.9).toFixed(2);
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'spiral-wrapper';
+        wrapper.style.cssText = [
+          `left:${cx}px`, `top:${cy}px`,
+          `--from-angle:${startAngle}deg`,
+          `--to-angle:${toAngle}deg`,
+          `--dur:${dur}s`
+        ].join(';');
+
+        const inner = document.createElement('div');
+        inner.className = 'spiral-inner';
+        inner.textContent = SPIRAL_EMOJIS[i % SPIRAL_EMOJIS.length];
+        inner.style.cssText = `font-size:${fontSize}rem;--radius:${radius}px;--dur:${dur}s;`;
+
+        wrapper.appendChild(inner);
+        document.body.appendChild(wrapper);
+        setTimeout(() => wrapper.remove(), parseFloat(dur) * 1000 + 250);
       }
     }
 
@@ -2853,7 +2916,7 @@
         animateCorrectButton(document.getElementById('choice-' + chosen));
         showAnswerOverlay('correct');
         const btn = document.getElementById('choice-' + chosen);
-        if (btn) burstParticles(btn);
+        if (btn) spiralParticles(btn);
         document.getElementById('score-live').textContent = `★ ${score}`;
         popScore();
         if (streak >= 2) {
