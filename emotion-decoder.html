@@ -1532,6 +1532,71 @@
       white-space: nowrap;
       text-align: center;
     }
+
+    /* ── Button answer animations (z-index 851: above overlay at 800 & confetti at 810) ── */
+    /* Green glow flash — overlaid on the button, position:fixed to match its bounding rect */
+    .btn-flash-correct {
+      position: fixed; pointer-events: none; z-index: 851;
+      border: 3px solid #4ade80;
+      box-shadow: 0 0 0 4px rgba(74,222,128,0.45), inset 0 0 24px rgba(74,222,128,0.55);
+      animation: btnFlashCorrect 0.36s ease-out forwards;
+    }
+    @keyframes btnFlashCorrect {
+      0%   { background: rgba(74,222,128,0.6);  opacity: 1; }
+      55%  { background: rgba(74,222,128,0.15); opacity: 0.9; box-shadow: 0 0 0 10px rgba(74,222,128,0.1), inset 0 0 30px rgba(74,222,128,0.2); }
+      100% { background: rgba(74,222,128,0);    opacity: 0; box-shadow: none; border-color: transparent; }
+    }
+    /* Red glow flash */
+    .btn-flash-wrong {
+      position: fixed; pointer-events: none; z-index: 851;
+      border: 3px solid #ef4444;
+      box-shadow: 0 0 0 4px rgba(239,68,68,0.45), inset 0 0 24px rgba(239,68,68,0.55);
+      animation: btnFlashWrong 0.36s ease-out forwards;
+    }
+    @keyframes btnFlashWrong {
+      0%   { background: rgba(239,68,68,0.65);  opacity: 1; }
+      55%  { background: rgba(239,68,68,0.18); opacity: 0.9; box-shadow: 0 0 0 10px rgba(239,68,68,0.1), inset 0 0 30px rgba(239,68,68,0.2); }
+      100% { background: rgba(239,68,68,0);     opacity: 0; box-shadow: none; border-color: transparent; }
+    }
+    /* Radiating rings — correct (green) */
+    .btn-ring-correct {
+      position: fixed; pointer-events: none; z-index: 851;
+      border: 2.5px solid #4ade80;
+      box-shadow: 0 0 8px #22c55e, 0 0 16px rgba(74,222,128,0.3);
+      animation: btnRingExpand 0.62s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    /* Radiating rings — wrong (red) */
+    .btn-ring-wrong {
+      position: fixed; pointer-events: none; z-index: 851;
+      border: 2.5px solid #ef4444;
+      box-shadow: 0 0 8px #dc2626, 0 0 16px rgba(239,68,68,0.3);
+      animation: btnRingExpand 0.62s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    @keyframes btnRingExpand {
+      0%   { opacity: 0.95; transform: scale(1); }
+      100% { opacity: 0;    transform: scale(1.65, 1.85); }
+    }
+    /* Green sparkle dots */
+    .btn-sparkle {
+      position: fixed; pointer-events: none; z-index: 851;
+      border-radius: 50%;
+      animation: btnSparkleAnim 0.7s ease-out forwards;
+    }
+    @keyframes btnSparkleAnim {
+      0%   { transform: translate(0,0) scale(1.4); opacity: 1; }
+      100% { transform: translate(var(--sx),var(--sy)) scale(0); opacity: 0; }
+    }
+    /* Red ✗ particles */
+    .btn-x-particle {
+      position: fixed; pointer-events: none; z-index: 851;
+      font-size: 0.72rem; font-weight: 900; color: #f87171;
+      font-family: 'Press Start 2P', monospace; line-height: 1;
+      animation: btnXAnim 0.6s ease-out forwards;
+    }
+    @keyframes btnXAnim {
+      0%   { transform: translate(0,0) scale(1.3); opacity: 1; }
+      100% { transform: translate(var(--sx),var(--sy)) scale(0.15); opacity: 0; }
+    }
   </style>
 </head>
 <body>
@@ -2380,6 +2445,7 @@
         score++;
         streak++;
         playSound('correct');
+        animateCorrectButton(submitBtn);
         showAnswerOverlay('correct');
         if (submitBtn) burstParticles(submitBtn);
         popScore();
@@ -2389,6 +2455,7 @@
         halfRightCount++;
         streak = 0;
         playSound('wrong');
+        animateWrongButton(submitBtn);
         showAnswerOverlay('wrong');
         setTimeout(() => showToast('⚡ HALF RIGHT...'), 400);
         if (halfRightCount === 3) {
@@ -2397,6 +2464,7 @@
       } else {
         streak = 0;
         playSound('wrong');
+        animateWrongButton(submitBtn);
         showAnswerOverlay('wrong');
         setTimeout(() => showToast('✗ KEEP TRYING!'), 400);
       }
@@ -2477,6 +2545,100 @@
         el.style.cssText = `left:${cx}px;top:${cy}px;--tx:${tx}px;--ty:${ty}px;--rot:${rot};animation-duration:${0.85+Math.random()*0.4}s;`;
         document.body.appendChild(el);
         setTimeout(() => el.remove(), 1400);
+      }
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+       BUTTON ANSWER ANIMATIONS
+       Self-cleaning: every element removed via animationend listener.
+       All at z-index 851 so they render above the answer overlay (800).
+    ───────────────────────────────────────────────────────────── */
+    function animateCorrectButton(btn) {
+      if (!btn) return;
+      const r  = btn.getBoundingClientRect();
+      const br = getComputedStyle(btn).borderRadius || '8px';
+
+      // 1 — bright green flash overlay exactly over the button
+      const flash = document.createElement('div');
+      flash.className = 'btn-flash-correct';
+      flash.style.cssText = `left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;border-radius:${br};`;
+      document.body.appendChild(flash);
+      flash.addEventListener('animationend', () => flash.remove(), { once: true });
+
+      // 2 — three staggered green rings expanding outward from the button
+      for (let i = 0; i < 3; i++) {
+        setTimeout(() => {
+          const ring = document.createElement('div');
+          ring.className = 'btn-ring-correct';
+          ring.style.cssText = `left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;border-radius:${br};`;
+          document.body.appendChild(ring);
+          ring.addEventListener('animationend', () => ring.remove(), { once: true });
+        }, i * 105);
+      }
+
+      // 3 — green sparkle dots shooting from the button centre
+      const cx = r.left + r.width / 2;
+      const cy = r.top  + r.height / 2;
+      const SPARK_COLORS = ['#4ade80','#22c55e','#86efac','#fde68a','#bbf7d0','#4ade80'];
+      for (let i = 0; i < 14; i++) {
+        const angle = (i / 14) * 360;
+        const dist  = 55 + Math.random() * 55;
+        const sz    = 5 + Math.random() * 6;
+        const sp = document.createElement('div');
+        sp.className = 'btn-sparkle';
+        sp.style.cssText = [
+          `left:${cx - sz / 2}px`, `top:${cy - sz / 2}px`,
+          `width:${sz}px`, `height:${sz}px`,
+          `background:${SPARK_COLORS[i % SPARK_COLORS.length]}`,
+          `--sx:${(Math.cos(angle * Math.PI / 180) * dist).toFixed(1)}px`,
+          `--sy:${(Math.sin(angle * Math.PI / 180) * dist - 22).toFixed(1)}px`,
+          `animation-delay:${i * 14}ms`
+        ].join(';');
+        document.body.appendChild(sp);
+        sp.addEventListener('animationend', () => sp.remove(), { once: true });
+      }
+    }
+
+    function animateWrongButton(btn) {
+      if (!btn) return;
+      const r  = btn.getBoundingClientRect();
+      const br = getComputedStyle(btn).borderRadius || '8px';
+
+      // 1 — bright red flash overlay exactly over the button
+      const flash = document.createElement('div');
+      flash.className = 'btn-flash-wrong';
+      flash.style.cssText = `left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;border-radius:${br};`;
+      document.body.appendChild(flash);
+      flash.addEventListener('animationend', () => flash.remove(), { once: true });
+
+      // 2 — two staggered red rings
+      for (let i = 0; i < 2; i++) {
+        setTimeout(() => {
+          const ring = document.createElement('div');
+          ring.className = 'btn-ring-wrong';
+          ring.style.cssText = `left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;border-radius:${br};`;
+          document.body.appendChild(ring);
+          ring.addEventListener('animationend', () => ring.remove(), { once: true });
+        }, i * 125);
+      }
+
+      // 3 — red ✗ particles shooting outward
+      const cx = r.left + r.width / 2;
+      const cy = r.top  + r.height / 2;
+      for (let i = 0; i < 8; i++) {
+        const angle = (i / 8) * 360;
+        const dist  = 42 + Math.random() * 38;
+        const xp = document.createElement('div');
+        xp.className = 'btn-x-particle';
+        xp.textContent = '✗';
+        xp.style.cssText = [
+          `left:${cx - 7}px`, `top:${cy - 7}px`,
+          `--sx:${(Math.cos(angle * Math.PI / 180) * dist).toFixed(1)}px`,
+          `--sy:${(Math.sin(angle * Math.PI / 180) * dist).toFixed(1)}px`,
+          `animation-delay:${i * 22}ms`
+        ].join(';');
+        document.body.appendChild(xp);
+        xp.addEventListener('animationend', () => xp.remove(), { once: true });
       }
     }
 
@@ -2688,6 +2850,7 @@
         score++;
         streak++;
         playSound('correct');
+        animateCorrectButton(document.getElementById('choice-' + chosen));
         showAnswerOverlay('correct');
         const btn = document.getElementById('choice-' + chosen);
         if (btn) burstParticles(btn);
@@ -2701,6 +2864,7 @@
       } else {
         streak = 0;
         playSound('wrong');
+        animateWrongButton(document.getElementById('choice-' + chosen));
         showAnswerOverlay('wrong');
         setTimeout(() => showToast('Not quite, see the reveal!'), 400);
       }
