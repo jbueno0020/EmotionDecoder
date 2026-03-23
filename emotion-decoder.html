@@ -673,30 +673,28 @@
       100% { transform: translate(var(--tx), var(--ty)) scale(0.2) rotate(var(--rot)); opacity: 0; }
     }
 
-    /* Spiral particles — correct answer (wrapper rotates, inner radiates outward) */
-    .spiral-wrapper {
+    /* Correct-answer burst — container holds stars, each star uses --bx/--by for direction */
+    #correct-burst {
       position: fixed;
+      inset: 0;
       pointer-events: none;
       z-index: 851;
-      width: 0; height: 0;
-      transform-origin: 0 0;
-      animation: spiralRotate var(--dur, 1.1s) ease-out forwards;
     }
-    .spiral-inner {
-      position: absolute;
-      transform-origin: center center;
-      animation: spiralRadiate var(--dur, 1.1s) ease-out forwards;
-      white-space: nowrap;
+    .burst-star {
+      position: fixed;
+      pointer-events: none;
+      font-size: 1.5rem;
       line-height: 1;
+      transform: translate(0, 0) scale(0.2);
+      opacity: 0;
     }
-    @keyframes spiralRotate {
-      from { transform: rotate(var(--from-angle, 0deg)); }
-      to   { transform: rotate(var(--to-angle, 540deg)); }
+    #correct-burst.active .burst-star {
+      animation: burstStarAnim 1.1s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
     }
-    @keyframes spiralRadiate {
-      0%   { transform: translate(0, 0) scale(0.3); opacity: 1; }
-      60%  { opacity: 1; }
-      100% { transform: translate(var(--radius, 100px), 0) scale(1.1); opacity: 0; }
+    @keyframes burstStarAnim {
+      0%   { transform: translate(0, 0) scale(1.3); opacity: 1; }
+      65%  { opacity: 0.9; }
+      100% { transform: translate(var(--bx), var(--by)) scale(0.2); opacity: 0; }
     }
 
     /* Expanding ring on correct answer */
@@ -1629,6 +1627,7 @@
 
   <!-- ── Global UI elements ──────────────────────────────────────── -->
   <div id="flash-overlay"></div>
+  <div id="correct-burst"></div>
   <div id="toast"></div>
   <div class="watermark">✦ THESTAFF LOUNGE26 ✦ TPT ✦</div>
 
@@ -2473,7 +2472,7 @@
         playSound('correct');
         animateCorrectButton(submitBtn);
         showAnswerOverlay('correct');
-        if (submitBtn) spiralParticles(submitBtn);
+        if (submitBtn) spawnCorrectBurst(submitBtn);
         popScore();
         setTimeout(() => showToast('🎯 PERFECT COMBO!'), 400);
         if (streak >= 2) setTimeout(() => { playSound('streak'); showToast(`🔥 ${streak} IN A ROW!`); }, 700);
@@ -2575,40 +2574,33 @@
     }
 
     /* ─────────────────────────────────────────────────────────────
-       SPIRAL PARTICLE BURST from a button element (correct answers)
+       CORRECT-ANSWER BURST from a button element
+       Mirrors the spawnLevelUpBurst() pattern: one container,
+       stars as children with --bx/--by CSS vars, staggered delays.
     ───────────────────────────────────────────────────────────── */
-    const SPIRAL_EMOJIS = ['⭐','🌟','✨','💫','🎉','🎊','💛','💚','⚡','🌈','🎇','🎆'];
-    function spiralParticles(btn) {
+    const BURST_EMOJIS_CORRECT = ['⭐','✨','💫','★','✦','🌟','🎉','💚'];
+    function spawnCorrectBurst(btn) {
+      const burst = document.getElementById('correct-burst');
+      if (!burst) return;
+      burst.innerHTML = '';
+      burst.classList.add('active');
       const rect = btn.getBoundingClientRect();
       const cx = rect.left + rect.width  / 2;
       const cy = rect.top  + rect.height / 2;
-      const count = 18;
-
-      for (let i = 0; i < count; i++) {
-        const startAngle = (i / count) * 360;
-        const toAngle    = startAngle + 450 + Math.random() * 210; // spiral 450-660 extra degrees
-        const radius     = 70 + Math.random() * 90;
-        const dur        = (0.9 + Math.random() * 0.5).toFixed(2);
-        const fontSize   = (1.0 + Math.random() * 0.9).toFixed(2);
-
-        const wrapper = document.createElement('div');
-        wrapper.className = 'spiral-wrapper';
-        wrapper.style.cssText = [
-          `left:${cx}px`, `top:${cy}px`,
-          `--from-angle:${startAngle}deg`,
-          `--to-angle:${toAngle}deg`,
-          `--dur:${dur}s`
-        ].join(';');
-
-        const inner = document.createElement('div');
-        inner.className = 'spiral-inner';
-        inner.textContent = SPIRAL_EMOJIS[i % SPIRAL_EMOJIS.length];
-        inner.style.cssText = `font-size:${fontSize}rem;--radius:${radius}px;--dur:${dur}s;`;
-
-        wrapper.appendChild(inner);
-        document.body.appendChild(wrapper);
-        setTimeout(() => wrapper.remove(), parseFloat(dur) * 1000 + 250);
+      for (let i = 0; i < 14; i++) {
+        const star = document.createElement('div');
+        star.className = 'burst-star';
+        const angle = (i / 14) * Math.PI * 2;
+        const dist  = 80 + Math.random() * 120;
+        star.style.setProperty('--bx', (Math.cos(angle) * dist) + 'px');
+        star.style.setProperty('--by', (Math.sin(angle) * dist) + 'px');
+        star.style.left = cx + 'px';
+        star.style.top  = cy + 'px';
+        star.style.animationDelay = (i * 0.04) + 's';
+        star.textContent = BURST_EMOJIS_CORRECT[i % BURST_EMOJIS_CORRECT.length];
+        burst.appendChild(star);
       }
+      setTimeout(() => { burst.classList.remove('active'); burst.innerHTML = ''; }, 1200);
     }
 
     /* ─────────────────────────────────────────────────────────────
@@ -2916,7 +2908,7 @@
         animateCorrectButton(document.getElementById('choice-' + chosen));
         showAnswerOverlay('correct');
         const btn = document.getElementById('choice-' + chosen);
-        if (btn) spiralParticles(btn);
+        if (btn) spawnCorrectBurst(btn);
         document.getElementById('score-live').textContent = `★ ${score}`;
         popScore();
         if (streak >= 2) {
